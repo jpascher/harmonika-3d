@@ -937,6 +937,7 @@ for r, x, k, kr in ([] if JP else zuordnung):
     rr = _SPGc([_uy(A_ABD_INNEN + 0.5, b_ - 6.0), _uy(a_ + 2.0, b_ - 6.0), _uy(a_ + 2.0, b_ + 6.0), _uy(A_ABD_INNEN + 0.5, b_ + 6.0)])
     gk = gk.cut(prisma_uy(_pts(_gr(rr.intersection(HUELLE_G.buffer(1.0)))), x, 10.0))
 teile.append(("Griffstock_Abdeckung", abdeckung, "Griffstock"))
+GS_ABD_LAGE = abdeckung          # 27.11.: Lagebezug fuer gs_fraes.py, auch wenn trad/kugel die Abdeckung entfernen
 print(f"Griffstock massiv X 0-{XM0:.0f} und {XM1:.0f}-{L:.0f}, Kunststoff Durchbrueche {sum(len(set(v)) for (o, y), v in _cb.items() if o == 'Ausnehmung-H')}")
 # Seitenform links/rechts nach der Griffstock-Aufsicht (Diskantteil-top): Stirnseiten zum Knopfende hin eingezogen
 _m2 = ezdxf.readfile("gs2.dxf").modelspace()

@@ -18,12 +18,14 @@ DZ = 0.25                     # Schnittabstand in Z fuer die Kanalerkennung
 def lage(pfad):
     a = cq.importers.importStep(pfad)
     S = sorted(a.solids().vals(), key=lambda s: -s.Volume())
-    koerper, teil2, abd = S[0], S[1], S[2]
-    nv = sorted(abd.Faces(), key=lambda f: -f.Area())[0].normalAt()
+    if os.path.exists(pfad + ".json"):        # 27.11.: Lage aus der Abdeckung, vom Generator mitgegeben (auch ohne Abdeckung im Modell)
+        nv = cq.Vector(*json.load(open(pfad + ".json"))["deckel_normale"])
+    else:                                      # alte Aufrufe: Koerper, Teil 2, Abdeckung im STEP
+        nv = sorted(S[2].Faces(), key=lambda f: -f.Area())[0].normalAt()
     if nv.y > 0: nv = -nv
     rot = 180 - math.degrees(math.atan2(nv.y, nv.z))          # Deckelnormale (nach aussen) -> -Z
     tr = lambda s: s.rotate(cq.Vector(0, 0, 0), cq.Vector(1, 0, 0), -rot)
-    return {"Teil1": tr(koerper), "Teil2": tr(teil2)}, rot
+    return {tn: tr(t) for tn, t in zip(("Teil1", "Teil2"), S[:2])}, rot
 
 def schnitt(teil, z):
     sec = teil.intersect(cq.Solid.makeBox(1000, 1000, 0.002, cq.Vector(-300, -500, z - 0.001)))

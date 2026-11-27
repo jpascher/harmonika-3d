@@ -940,8 +940,16 @@ import os
 asm = cq.Assembly(name=(f"Diskantteil_{INSTR['name']}" if INSTR else f"Diskantteil_Markus_{VAR}"))   # Name der obersten Komponente in Fusion
 import re as _re
 if os.environ.get("GS_STEP"):          # 19.11.: Griffstock Teil 1/2 + Abdeckung fuer die Fraesdateien (gs_fraes.py) mit ausgeben
-    _gs = [s_ for n_, s_, f_ in teile if n_ in ("Griffstock_Koerper", "Griffstock_Teil2", "Griffstock_Abdeckung")]
+    _gs = [s_ for n_, s_, f_ in teile if n_ in ("Griffstock_Koerper", "Griffstock_Teil2")]
     cq.exporters.export(cq.Compound.makeCompound(_gs), os.environ["GS_STEP"])
+    # 27.11.: Fraeslage aus der hinteren Abdeckung (Normale der groessten Flaeche) - auch wenn das Modell keine
+    # Abdeckung hat (traditionell/kugellager: hinten offen), damit gs_fraes.py nicht an der Teilezahl scheitert
+    _abd = next((s_ for n_, s_, f_ in teile if n_ == "Griffstock_Abdeckung"), globals().get("GS_ABD_LAGE"))
+    if _abd is not None:
+        _nv = sorted(_abd.Faces(), key=lambda f_: -f_.Area())[0].normalAt()
+        import json as _js
+        _js.dump({"deckel_normale": [_nv.x, _nv.y, _nv.z], "teile": [n_ for n_, s_, f_ in teile if n_ in ("Griffstock_Koerper", "Griffstock_Teil2")]},
+                 open(os.environ["GS_STEP"] + ".json", "w"))
     print("Griffstock fuer Fraesdateien:", len(_gs), "Teile ->", os.environ["GS_STEP"])
 _filt = os.environ.get("NUR")          # z.B. NUR="Diskantboden|Klappe|Griffstock|Rahmen_vorne" fuer leichte Ansicht
 if _filt: teile = [t_ for t_ in teile if _re.search(_filt, t_[0])]

@@ -41,7 +41,8 @@ def main(liste, ordner, version="neu"):
     gs_ok = r2.returncode == 0
     if not gs_ok and not winkel: raise SystemExit("gs_fraes-Fehler, siehe gs_fraes.log")
     if not gs_ok: print("   Hinweis: Winkel-Griffstock - Griffstock-Fraesdateien werden noch nicht automatisch erzeugt (26.11.2026)", flush=True)
-    if os.path.exists(gs_step): os.remove(gs_step)
+    for f_ in (gs_step, gs_step + ".json"):
+        if os.path.exists(f_): os.remove(f_)
     print("3) Alu-Abwicklungen, Holzteile, Kunststoffteil ...", flush=True)
     env3 = dict(os.environ, ALU_ZUKAUF="1" if winkel else "")   # 27.11.2026: Winkel/Ital (3-mm-Achse): Alu-Hebel werden zugekauft
     r3 = subprocess.run([sys.executable, "teile_dxf.py", dump, kst_step, teile_dir], cwd=hier, capture_output=True, text=True, env=env3)
