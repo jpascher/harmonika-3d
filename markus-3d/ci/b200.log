@@ -1,0 +1,24 @@
+Modell t0.step: 476 Teile, Gehaeuse 340 x 205 mm (fertig)
+Breite -5 mm: Streifen Y 0.5-5.5
+   Bassteil_340_schmal_schraeg/Seitenteil_links: geschnitten bei Y 29.0 (eigene Stelle statt 0.5)
+   Bassteil_340_schmal_schraeg/Seitenteil_rechts: geschnitten bei Y 29.0 (eigene Stelle statt 0.5)
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Bassboden | Bassteil_340_schmal_schraeg/Rueckteil 6431.82
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Deckelauflage_hinten | Bassteil_340_schmal_schraeg/Deckelauflage_links 915.0
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Deckelauflage_hinten | Bassteil_340_schmal_schraeg/Deckelauflage_rechts 915.0
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Deckelauflage_hinten | Bassteil_340_schmal_schraeg/Eckblock_1 736.68
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Deckelauflage_hinten | Bassteil_340_schmal_schraeg/Eckblock_2 736.68
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Kammern_hinten | Bassteil_340_schmal_schraeg/Rueckteil 8941.36
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Kammern_hinten | Bassteil_340_schmal_schraeg/Innenleiste_hinten 15225.75
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Stimmplatte_hinten_1 | Bassteil_340_schmal_schraeg/Innenleiste_hinten 217.79
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Stimmplatte_hinten_2 | Bassteil_340_schmal_schraeg/Innenleiste_hinten 217.79
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Stimmplatte_hinten_3 | Bassteil_340_schmal_schraeg/Innenleiste_hinten 217.79
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Stimmplatte_hinten_4 | Bassteil_340_schmal_schraeg/Innenleiste_hinten 217.79
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/HB_Stimmplatte_hinten_5 | Bassteil_340_schmal_schraeg/Innenleiste_hinten 217.79
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Bassdeckel | Bassteil_340_schmal_schraeg/Bassdeckel_Leiste_hinten 6390.73
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Bassdeckel_Leiste_hinten | Bassteil_340_schmal_schraeg/Fuss_Schraube_1 28.27
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Bassdeckel_Leiste_hinten | Bassteil_340_schmal_schraeg/Fuss_Schraube_2 28.27
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Gaze_FLoch_1 | Bassteil_340_schmal_schraeg/Rueckteil 123.18
+NEUE BERUEHRUNG Bassteil_340_schmal_schraeg/Gaze_FLoch_2 | Bassteil_340_schmal_schraeg/Rueckteil 126.54
+Gehaeuse nachher 340 x 200 mm (fertig)
+Masse geaendert, aber es gibt neue Beruehrungen (siehe oben) - nicht gespeichert
+FERTIG 1
