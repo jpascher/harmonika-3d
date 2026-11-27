@@ -410,6 +410,9 @@ for e in MD.query('*[layer=="Klappen-hebel"]'):
     if math.dist(pa, pk) < 3: pa = p0 if da < db else p1
     pa = (pa[0], vy(pa[1]))
     pa = fuss(pa, min(achsen, key=lambda a_: fuss(pa, a_)[1]))[0]
+    for n_v, (x0_v, x1_v, y0_v, y1_v) in KL_ALT.items():          # 27.11.: versetzte Klappe - Hebelende mitnehmen
+        if x0_v - 1 <= pk[0] <= x1_v + 1 and y0_v - 1 <= pk[1] <= y1_v + 1:
+            pk = (pk[0] + KL_VERSATZ[n_v][0], pk[1] + KL_VERSATZ[n_v][1]); print(f"Klappenhebel zu Klappe_{n_v} versetzt nach", [round(c_, 1) for c_ in pk])
     n_kh += 1
     kh_liste.append((pa, pk)); kh_namen.append(f"Klappenhebel_{n_kh}")
     kh = hebel_pfad(pa, pk)
@@ -762,6 +765,14 @@ for ai in sorted(set(stange_achse)):
             if v_ > 0.05:
                 bi_ = s1.intersect(s2).BoundingBox()
                 ged_kol.setdefault(f"Achse {ai+1} Knopf " + ",".join(f"{q[4]}{L - q[5]:.0f}" for q in arms_), []).append((n1, n2, round(v_, 2), [round(bi_.ymin, 1), round(bi_.ymax, 1), round(bi_.zmin, 1), round(bi_.zmax, 1)]))
+    _de = _os.environ.get("DRUECK_STEP", "")             # 27.11.: "Achsnummer:datei.step" - Modell mit gedrueckter Achse zum Ansehen
+    if _de and int(_de.split(":", 1)[0]) == ai + 1:
+        _as = cq.Assembly(name=f"Bassteil_Achse_{ai+1}_gedrueckt")
+        for n2, s2 in fest_: _as.add(s2, name=n2, color=cq.Color(0.75, 0.72, 0.65, 0.35))
+        for n1, s1 in beweg.items(): _as.add(s1, name=n1 + "_gedrueckt", color=cq.Color(0.2, 0.45, 0.9))
+        for k_, (n1, n2, v_, _) in enumerate(ged_kol.get(f"Achse {ai+1} Knopf " + ",".join(f"{q[4]}{L - q[5]:.0f}" for q in arms_), [])):
+            _as.add(beweg[n1].intersect(dict(fest_)[n2]), name=f"Ueberschneidung_{k_+1}_{n1}_mit_{n2}", color=cq.Color(1, 0, 0))
+        _as.save(_de.split(":", 1)[1]); print("Gedrueckt-Modell geschrieben:", _de.split(":", 1)[1])
 print("Gedrueckt-Pruefung Achsen", len(set(stange_achse)), "Armlaenge", round(ARMLEN, 1), "Winkel", round(math.degrees(HUB / ARMLEN), 1))
 for k_, v_ in ged_kol.items(): print("GEDRUECKT", k_, v_)
 for n_, s_ in mech:

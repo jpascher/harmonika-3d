@@ -49,10 +49,19 @@ def vertiefung_und_klappe(form2d, name):
     for nm, dk in (("Leder", T_LEDER), ("Filz", T_FILZ), ("Epoxy", T_EPOXY)):
         lagen.append((f"{name}_{nm}", form2d(RAND_V - SPIEL).extrude(dk).translate((0, 0, z0_ - dk)).val())); z0_ -= dk
     klappen.extend(lagen)
+# 27.11.2026 (Johann): Klappe 9 samt Oeffnung 15 mm nach aussen (+X, zur Seitenwand) - die geoeffnete Klappe stiess an die
+# Lufttaste (48,5 mm3). Die Oeffnung bleibt in der schmalen Kammer (innen bis X 371). Der Klappenhebel geht mit (mechanik.py).
+KL_VERSATZ = {9: (15.0, 0.0)}
+KL_ALT = {}                                          # Nummer -> alte Oeffnung (x0, x1, y0, y1), fuer den Klappenhebel
 for e in ents:
     if e.dxftype() == "LWPOLYLINE" and e.dxf.layer == "2Füllung-Öffnug" and e.closed:
         pts = [v(p.x, p.y) for p in ezdxf.path.make_path(e).flattening(0.05)][:-1]
-        loch(cq.Workplane("XY").polyline(pts).close()); n_rect += 1
+        n_rect += 1
+        if n_rect in KL_VERSATZ:
+            KL_ALT[n_rect] = (min(a for a, _ in pts), max(a for a, _ in pts), min(b for _, b in pts), max(b for _, b in pts))
+            pts = [(a + KL_VERSATZ[n_rect][0], b + KL_VERSATZ[n_rect][1]) for a, b in pts]
+            print(f"Klappe_{n_rect}: Oeffnung und Klappe versetzt um", KL_VERSATZ[n_rect])
+        loch(cq.Workplane("XY").polyline(pts).close())
         xs = [a for a, _ in pts]; ys = [b for _, b in pts]
         x0_, x1_, y0_, y1_ = min(xs), max(xs), min(ys), max(ys)
         vertiefung_und_klappe(lambda o, a=x0_, b=x1_, c=y0_, d=y1_: cq.Workplane("XY").center((a+b)/2, (c+d)/2).rect(b-a+2*o, d-c+2*o), f"Klappe_{n_rect}")
