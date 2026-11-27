@@ -109,6 +109,9 @@ jobs:
           PLATTEN: ""
           BELEGUNG: ""
         run: xvfb-run -a python3 markus-3d/ci/erzeuge_ci.py "$TEIL" "$VARIANTE" "$TEILUNG" "$LAENGE" ergebnis true
+      - name: Teilprotokolle bei Fehler zeigen
+        if: failure()
+        run: for f in ergebnis/diskant_roh/*.log; do echo "=== $f"; tail -60 "$f"; done || true
       - name: Protokoll bei Fehler sichern
         if: failure()
         uses: actions/upload-artifact@v4
