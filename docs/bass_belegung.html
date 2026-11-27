@@ -58,7 +58,7 @@
   <div>
     <div class="feld">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-        <label>Modell: <select id="modell"><option value="../markus-3d/bass/v340/belegung_modell_340.json">340 schmal leicht schräg</option></select></label>
+        <label>Modell: <select id="modell"><option value="daten/belegung_modell_340.json">340 schmal leicht schräg</option></select></label>
         <span>
           <span class="leg"><i style="background:var(--hb)"></i>Grundbass hinten</span>
           <span class="leg"><i style="background:var(--hbv)"></i>Grundbass vorne</span>
@@ -250,7 +250,9 @@ function aktualisiere() {
 }
 
 async function lade(url) {
-  M = await (await fetch(url)).json(); zuo = { ...M.standard }; N = { ...M.reihen }; T = "standard"; gewaehlt = null; aktualisiere();
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Modelldaten nicht gefunden (${r.status}): ${url}`);
+  M = await r.json(); zuo = { ...M.standard }; N = { ...M.reihen }; T = "standard"; gewaehlt = null; aktualisiere();
 }
 document.getElementById("standard").onclick = () => { zuo = { ...M.standard }; N = { ...M.reihen }; T = "standard"; gewaehlt = null; aktualisiere(); };
 document.getElementById("einlesen").onclick = () => {   // Kurzform zurueck ins Bild: R1=10, 1.1=V077, ...
