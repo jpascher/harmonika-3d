@@ -1,0 +1,39 @@
+# Geprüfte Modelle ins Release "modelle-geprueft" stellen (27.11.2026)
+# Ablauf: Dateien <Name>_step.zip / <Name>_Fraesdaten.zip / <Name>_vorschau.png in den Ordner hochladen/ eines Zweigs
+# "hochladen" pushen. Dieser Workflow hängt sie an das Release (vorhandene gleichnamige Dateien werden ersetzt) und
+# löscht den Zweig danach wieder, damit die großen Dateien nicht im Repository bleiben.
+name: Modelle hochladen
+
+on:
+  push:
+    branches: [hochladen]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: modelle-hochladen
+  cancel-in-progress: false
+
+jobs:
+  hochladen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hochladen
+      - name: Release anlegen (falls noch nicht da) und Dateien anhängen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view modelle-geprueft --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create modelle-geprueft --repo "$GITHUB_REPOSITORY" --title "Geprüfte Modelle" --notes-file hochladen/LIESMICH_Release.md
+          fi
+          ls -la hochladen
+          for f in hochladen/*; do
+            case "$f" in *.md) continue;; esac
+            gh release upload modelle-geprueft "$f" --repo "$GITHUB_REPOSITORY" --clobber
+          done
+      - name: Zweig wieder löschen
+        if: success()
+        run: git push origin --delete hochladen
