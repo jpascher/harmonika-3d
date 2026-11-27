@@ -147,11 +147,12 @@
 
 <script>
 const BASS = [
-  { id:"markus",  name:"Markus",       text:"Zwei Reihen, Helikon. Knopfteilung und Gehäuselänge frei.", teil:"20", laenge:true, l0:380, bmin:203.5 },
+  { id:"markus",  name:"Markus",       text:"Drei Reihen (10/9/4), Helikon. Knopfteilung und Gehäuselänge frei.", teil:"20", laenge:true, belegung:true, l0:380, bmin:203.5 },
   { id:"marie38", name:"Marie 38 cm",  text:"Helikon in zwei Ebenen mit Verbindungskanal (Stockwerk).", teil:"19", belegung:true, l0:380, bmin:200 },
   { id:"eduard",  name:"Eduard",       text:"Winkelbass.", teil:"20", belegung:true, l0:380, bmin:200.5 },
   { id:"gerhard", name:"Gerhard",      text:"Drei Reihen, viele Bässe, versetzte und eine liegende Kammer.", teil:"20", belegung:true, l0:380, bmin:202 },
   { id:"andreas", name:"Andreas",      text:"Stockwerk nach Marie 38, 13 schmale Helikon, 400 mm.", teil:"19", belegung:true, l0:400, bmin:202.5 },
+  { id:"v3",      name:"Variante 3 traditionell", text:"Markus-Gehäuse, flacher Einbau, Helikon 4/5, Knöpfe 9 + 8.", teil:"20", teil_fest:true, belegung:true, l0:380, bmin:203.5 },
   { id:"v340",    name:"340 schmal",   text:"Kurzes Gehäuse, schräge Platten, abgesenkte Luftklappe. Knopfzahl je Reihe frei.", teil:"19", belegung:true, geprueft:["20"], l0:340, bmin:203 },
 ];
 const GRIFF = [
@@ -245,8 +246,9 @@ function pruefung() {
   if (W.teil === "bass") {
     const b = BASS.find(x => x.id === W.bass);
     const mf = masseFehler(); if (mf) return ["nein", mf];
-    if (W.belegung && !b.belegung) return ["nein", "Eigene Belegung gibt es beim Markus-Bass noch nicht."];
+    if (W.belegung && !b.belegung) return ["nein", "Eigene Belegung gibt es bei diesem Bassteil noch nicht."];
     if (W.belegung && !/^[0-9.=A-Za-z,;\s]+$/.test(W.belegung)) return ["nein", "Belegung: nur die Kurzform 1.1=V077, 1.2=BL152, …"];
+    if (b.teil_fest && !["standard", b.teil].includes(W.teilung)) return ["nein", `${b.name} gibt es nur mit ${b.teil} mm Knopfteilung.`];
     if (W.teilung !== "standard" && !b.laenge && !(b.geprueft || []).includes(W.teilung)) return ["neu", `Andere Teilung als gezeichnet (${b.teil} mm) ist beim ${b.name} noch nicht gerechnet worden – Protokoll prüfen.`];
     return ["ok", "Diese Auswahl lässt sich rechnen."];
   }
@@ -287,14 +289,14 @@ function zusammenfassung() {
 }
 function neu() {
   korrigiere();
-  karte($("teil"), [{ id:"bass", name:"Bassteil", text:"Sechs Modelle, Knopfteilung, Länge, freie Belegung." },
+  karte($("teil"), [{ id:"bass", name:"Bassteil", text:"Sieben Modelle, Knopfteilung, Länge, freie Belegung." },
                     { id:"diskant", name:"Diskantteil", text:"Markus oder Marie, sieben Griffstöcke, Knopfzahl, Knopfabstand 18/19/20, Plattenlängen." }], "teil");
   $("s_bass").classList.toggle("verborgen", W.teil !== "bass"); $("s_diskant").classList.toggle("verborgen", W.teil !== "diskant");
   // Bass
   karte($("bass"), BASS.map(b => ({ ...b, marke: b.belegung ? "freie Belegung" : "" })), "bass");
   const b = BASS.find(x => x.id === W.bass);
   chips($("teilung"), ["standard", "18", "19", "20"], "teilung", () => "", v => v === "standard" ? `${b.teil} mm` : "mm");
-  $("teilung_warum").textContent = b.laenge ? "Beim Markus-Bass sind alle Teilungen gerechnet." : `Bei allen Bassteilen frei wählbar. Gerechnet ist die Teilung laut Zeichnung (${b.teil} mm); andere Werte gehen, sind aber neu.`;
+  $("teilung_warum").textContent = b.teil_fest ? "Diese Variante gibt es nur mit der gezeichneten Teilung (20 mm)." : b.laenge ? "Beim Markus-Bass sind alle Teilungen gerechnet." : `Bei allen Bassteilen frei wählbar. Gerechnet ist die Teilung laut Zeichnung (${b.teil} mm); andere Werte gehen, sind aber neu.`;
   $("beleg_link").href = "bass_belegung.html?modell=" + (W.bass === "v340" ? "340" : W.bass) + (W.teilung !== "standard" ? "&teilung=" + W.teilung : "");
   $("belegung_feld").classList.toggle("verborgen", !b.belegung);
   // Diskant

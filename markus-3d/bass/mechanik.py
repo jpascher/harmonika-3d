@@ -290,6 +290,10 @@ for e in MD.query('*[layer=="GB-Schubstangen" | layer=="Begleiter-Schubstangen"]
     r = "A" if vorne[1] < 215 else "B" if vorne[1] < 220.5 else "C"
     kn = min([k for k in knoepfe if k[1] == r], key=lambda k: abs(k[0] - vorne[0]))
     stangen.append((hinten, r, kn[0]))
+# 27.11.2026: freie Belegung (BASS_BELEGUNG) - Knoepfe auf andere Achsen umhaengen; Achsen, Boecke und Klappenhebel bleiben
+# wie gezeichnet. Ein Knopf, der auf seiner Achse bleibt, bleibt unveraendert (Standardbelegung = gepruefte Zeichnung).
+import belegung_markus as _bm
+stangen = _bm.anwenden(stangen, knoepfe, achsen, fuss, L)
 n_ok = 0
 # Klappen-Grundrisse (fuer "nicht mit Klappe kollidieren") und Lufttasten-Langloch im Deckel
 kl_bb = [s_.BoundingBox() for n_, s_ in klappen if n_.endswith("Leder")]
@@ -347,7 +351,8 @@ for i, (P, r, Xk) in enumerate(stangen):
             y1 = max(y1, yo_ + hb_ + D_STANGE / 2 + 0.5 + HUB - max(0.0, zb_ - D_STANGE / 2 - 0.3 - Z_GG))
     y2 = y1 + (z_mid - Z_GG)
     y3 = y_end - (Zr - z_mid)
-    if y3 < y2: y3 = y2
+    if y3 < y2:     # 27.11.2026: kein Platz fuer 45 Grad - steiler hoch statt ueber die Knopfstufe hinaus (sonst Front/Knopfzylinder)
+        y2 = max(y1 + 2.0, y3); y3 = max(y3, y2)
     pfad = [(gx, gy + 4.6, Z_GG), (gx, y1, Z_GG), (gx, y2, z_mid), (Xk, y3, z_mid), (Xk, y_end, Zr)]
     pfad = [p for k_, p in enumerate(pfad) if k_ == 0 or math.dist(p, pfad[k_ - 1]) > 0.05]
     st = None
@@ -355,6 +360,7 @@ for i, (P, r, Xk) in enumerate(stangen):
         seg = stab(p_a, p_b, D_STANGE).fuse(cq.Solid.makeSphere(D_STANGE / 2, cq.Vector(*p_b)))
         st = seg if st is None else st.fuse(seg)
     mech.append((f"Schubstange_{r}_{Xk:.0f}", st)); stange_pfad[f"Schubstange_{r}_{Xk:.0f}"] = pfad
+    if _os.environ.get("PFAD_DEBUG"): print("PFAD", f"Schubstange_{r}_{Xk:.0f}", "Achse", ai + 1, [tuple(round(v_, 1) for v_ in q_) for q_ in pfad], "z_mid", round(z_mid, 2), "y_frei", round(y_frei, 1))
     gelenk((gx, gy, Z_GG), -1, sk_, st, f"{i+1}")
     if dist < 6: n_ok += 1
 print("Mechanik: Achsen", len(achsen), "Lagerboecke", len(lbs), "Knoepfe", len(knoepfe), "Schubstangen", len(stangen), "davon an Achse (<6 mm)", n_ok)
@@ -444,6 +450,7 @@ for ai in sorted(stange_achse):
     zuordnung[ai] = [(kn_, tx_[2], "ERGAENZT", f"Klappenhebel_{n_kh}_ergaenzt")]; belegt.add(kn_)
 for ai in sorted(set(stange_achse) | set(zuordnung)):
     print("ZUORDNUNG Achse", ai + 1, "Knopf", [(r_, round(L - x_)) for r_, x_ in stange_achse.get(ai, [])], "-> Klappe", [(k_[0], k_[1], k_[2]) for k_ in zuordnung.get(ai, [])] or "KEINE")
+_bm.exportiere(arm_info, zuordnung, kh_liste, kh_namen, kl_c, achsen, knoepfe, REIHEN, L, B)   # BELEGUNG_EXPORT
 if __import__("os").environ.get("DUMP_M") and False:
     import json as _json
     _nb = []; _k = 0

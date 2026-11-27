@@ -95,6 +95,9 @@ for knl, pxk in BASS_T:
 for i, (r_, px) in enumerate(BEGL_T):
     ach.append(dict(art="Begleiter", kn=[(RB[r_], XKn(px))], kl=begl_kl[i]))
 ach.append(dict(art="Zusatz", kn=[("A", XKn(261.5))], kl="Zusatzklappe"))
+# 27.11.2026: freie Belegung (BASS_BELEGUNG) bzw. Modelldatei (BELEGUNG_EXPORT) - siehe belegung_v3.py
+import belegung_v3 as _bv3
+ach, V3_FREI = _bv3.anwenden(ach, knoepfe, kl_c, L)
 taste_bb = [s_ for n_, s_ in teile if n_ == "Lufttaste"][0].BoundingBox()
 TX0, TX1, TY0, TY1 = taste_bb.xmin - 2.5, taste_bb.xmax + 2.5, taste_bb.ymin - 2.5, taste_bb.ymax + 2.5
 # Armlage: am Knopf-X; Ausnahmen: Luft-Schubstange (Knopf bei X des Hebelauges) und Zusatzklappe (Boden erst ab X 272.5)
@@ -270,6 +273,43 @@ def _rows(lst):
     for a in lst: rr_.setdefault(a["ri"], []).append(a)
     return [sorted(rr_[k], key=lambda a: a["x0"]) for k in sorted(rr_)]
 rows_b = _rows([a for a in ach if a["art"] == "Bass" and a not in SCHRAEG]); rows_g = _rows([a for a in ach if a["art"] == "Begleiter"]); rows_z = _rows([a for a in ach if a["art"] == "Zusatz"])
+if V3_FREI:     # 27.11.2026: freie Belegung - Reihen je Gruppe suchen (keine Ueberschneidung in einer Reihe, keine Buchsenkonflikte),
+    import time as _time, itertools as _it          # zuerst die gesuchten festen Reihen der gebauten Belegung
+    def _setze():
+        global rows_b, rows_g, rows_z
+        for a in ach:
+            if a not in SCHRAEG: a["y"] = y_st_[a["art"]] - DY_R * a["ri"]
+        rows_b = _rows([a for a in ach if a["art"] == "Bass" and a not in SCHRAEG]); rows_g = _rows([a for a in ach if a["art"] == "Begleiter"]); rows_z = _rows([a for a in ach if a["art"] == "Zusatz"])
+    def _xb(a): return min([a["xh"]] + [q[2] for q in a["arm"]]), max([a["xh"]] + [q[2] for q in a["arm"]])
+    for a in ach: a["x0"], a["x1"] = _xb(a)
+    def _ueberlapp(lst):
+        for i, a in enumerate(lst):
+            for c in lst[i + 1:]:
+                if a["ri"] == c["ri"] and not (a["x1"] + 3.0 <= c["x0"] or c["x1"] + 3.0 <= a["x0"]): return True
+        return False
+    def _fehler(art):
+        verteilen()
+        n_ = sum(1 for b_, k_ in zip(bl, kl_) if b_["g"] == (0 if art == "Bass" else 1) and schlecht(k_))
+        # gemeinsame Buchse zu nah am Arm/Klappenhebel (Feder braucht Platz zwischen Arm und Buchse)
+        n_ += sum(1 for a in ach if a["art"] == art and a not in SCHRAEG and
+                  (a["e1"] < a["x1"] + rand(a, a["x1"]) - 0.01 or a["e0"] > a["x0"] - rand(a, a["x0"]) + 0.01))
+        return n_
+    t0_ = _time.time()
+    for art in ("Bass", "Begleiter"):
+        lst = sorted([a for a in ach if a["art"] == art and a not in SCHRAEG], key=lambda a: a["x0"])
+        rmax = int((y_st_[art] - Y_MIN_R[art]) / DY_R + 1e-6)
+        beste = None
+        start = [a["ri"] for a in lst]
+        kand = [start] + sorted((list(c) for c in _it.product(range(rmax + 1), repeat=len(lst))), key=lambda c: (max(c), sum(c)))
+        for n_, c in enumerate(kand):
+            for a, r_ in zip(lst, c): a["ri"] = r_
+            if _ueberlapp(lst): continue
+            _setze(); f_ = _fehler(art)
+            if beste is None or f_ < beste[0]: beste = (f_, list(c))
+            if f_ == 0 or _time.time() - t0_ > 600: break
+        for a, r_ in zip(lst, beste[1]): a["ri"] = r_
+        _setze()
+        print(f"Freie Belegung: Reihen {art}", {a["kl"]: a["ri"] for a in lst}, "Buchsenkonflikte", beste[0], f"({_time.time() - t0_:.0f} s)")
 verteilen()
 boecke = []
 for b, k_ in zip(bl, kl_):

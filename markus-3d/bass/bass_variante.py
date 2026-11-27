@@ -7,7 +7,7 @@ import sys, os, shutil, ezdxf
 Q, Z, T = sys.argv[1], sys.argv[2], float(sys.argv[3])
 RA = float(sys.argv[4]) if len(sys.argv) > 4 else 14.0
 if os.path.exists(Z): shutil.rmtree(Z)
-shutil.copytree(Q, Z, ignore=shutil.ignore_patterns("*.step", "__pycache__"))
+shutil.copytree(Q, Z, ignore=shutil.ignore_patterns("*.step", "__pycache__", "varianten", "Modelle"))   # 27.11.: nicht in sich selbst kopieren
 for f in ("Markus_front_v4.step", "Markus_rueck_v4.step", "Markus_seite_v4.step"):
     pass
 # --- rahmen.dxf: Bohrungen Bassdruecker neu setzen (Zeichnung: x = -X, y = Reihenhoehe) ---

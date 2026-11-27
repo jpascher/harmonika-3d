@@ -16,9 +16,10 @@ import sys, os, glob, shutil, subprocess, time, zipfile
 HIER = os.path.dirname(os.path.abspath(__file__))
 M3D = os.path.dirname(HIER)
 BASS = {"markus": ("bass", None), "marie38": ("bass/marie38", "kammern38.py"), "eduard": ("bass/eduard", "eduard.py"),
-        "gerhard": ("bass/gerhard", "gerhard.py"), "andreas": ("bass/andreas", "andreas.py"), "v340": ("bass/v340", "v340.py")}
+        "gerhard": ("bass/gerhard", "gerhard.py"), "andreas": ("bass/andreas", "andreas.py"), "v340": ("bass/v340", "v340.py"),
+        "v3": ("bass/variante3", "v3_erzeuge.py")}
 
-NAMEN = {"marie38": "Marie38", "eduard": "Eduard", "gerhard": "Gerhard", "andreas": "Andreas", "v340": "340"}
+NAMEN = {"marie38": "Marie38", "eduard": "Eduard", "gerhard": "Gerhard", "andreas": "Andreas", "v340": "340", "v3": "Variante3_traditionell"}
 
 def lauf(cmd, cwd, log, env=None):
     t0 = time.time()
@@ -57,24 +58,25 @@ def main():
         ordner, skript = BASS[variante]
         cwd = os.path.join(M3D, ordner)
         tag = "" if teilung in ("", "standard") else f"_T{teilung}"
+        bel = os.environ.get("BELEGUNG", "").strip()
+        env_ = None
+        if bel:                                                   # freie Belegung (Webseite "Bassbelegung zuordnen")
+            mj = glob.glob(os.path.join(cwd, "belegung_modell_*.json"))
+            if not mj: raise SystemExit(f"Freie Belegung gibt es fuer {variante} noch nicht")
+            bel_datei = os.path.join(aus, "belegung.txt")
+            open(bel_datei, "w", encoding="utf-8").write(f"modell = {variante}\n" + "\n".join(t.strip() for t in bel.replace(";", ",").split(",") if t.strip()) + "\n")
+            bel_py = os.path.join(M3D, "bass", "belegung.py")
+            pr = subprocess.run([py, bel_py, mj[0], bel_datei] + ([] if teilung in ("", "standard") else [teilung]), cwd=cwd, capture_output=True, text=True)
+            if pr.returncode != 0:                                # 27.11.: vor dem langen Rechnen pruefen, Grund ins Protokoll
+                raise SystemExit("Belegung nicht baubar:\n" + "\n".join((pr.stdout + pr.stderr).strip().splitlines()[:6]))
+            env_ = dict(os.environ, BASS_BELEGUNG=bel_datei)
+            tag += "_Belegung"
         if variante == "markus":                              # Laenge im Generator selbst (streck.py)
             t_ = "20" if teilung in ("", "standard") else teilung
             l_ = laenge or "380"
-            step = os.path.join(aus, f"Bassteil_Markus_T{t_}_L{l_}.step")
-            lauf([py, "bass_erzeuge.py", t_, l_, step], cwd, log)
+            step = os.path.join(aus, f"Bassteil_Markus_T{t_}_L{l_}{'_Belegung' if bel else ''}.step")
+            lauf([py, "bass_erzeuge.py", t_, l_, step], cwd, log, env_)
         else:
-            bel = os.environ.get("BELEGUNG", "").strip()
-            env_ = None
-            if bel:                                               # freie Belegung (Webseite "Bassbelegung zuordnen")
-                mj = glob.glob(os.path.join(cwd, "belegung_modell_*.json"))
-                if not mj: raise SystemExit(f"Freie Belegung gibt es fuer {variante} noch nicht (alle Bassteile ausser Markus)")
-                bel_datei = os.path.join(aus, "belegung.txt")
-                open(bel_datei, "w", encoding="utf-8").write(f"modell = {variante}\n" + "\n".join(t.strip() for t in bel.replace(";", ",").split(",") if t.strip()) + "\n")
-                pr = subprocess.run([py, os.path.join(os.path.dirname(cwd), "belegung.py"), mj[0], bel_datei], cwd=cwd, capture_output=True, text=True)
-                if pr.returncode != 0:                            # 27.11.: vor dem langen Rechnen pruefen, Grund ins Protokoll
-                    raise SystemExit("Belegung nicht baubar:\n" + "\n".join((pr.stdout + pr.stderr).strip().splitlines()[:6]))
-                env_ = dict(os.environ, BASS_BELEGUNG=bel_datei)
-                tag += "_Belegung"
             step = os.path.join(aus, f"Bassteil_{NAMEN[variante]}{tag}.step")
             lauf([py, skript, step] + ([] if teilung in ("", "standard") else [teilung]), cwd, log, env_)
         modell = step

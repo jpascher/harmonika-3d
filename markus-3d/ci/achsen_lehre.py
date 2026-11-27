@@ -135,6 +135,7 @@ def main():
     ap.add_argument("--ri", type=float, default=2.4, help="Biege-Innenradius")
     ap.add_argument("--tafel", default="600x300"); ap.add_argument("--spiel", type=float, default=0.2)
     ap.add_argument("--tiefe", type=float, default=1.5)
+    ap.add_argument("--uebermass", type=float, default=10.0, help="Klappenhebel ueber die Klappenmitte hinaus (Johann 27.11.)")
     a = ap.parse_args()
     os.makedirs(a.ordner, exist_ok=True)
     R = a.ri + a.d / 2; rd = a.d / 2
@@ -191,12 +192,15 @@ def main():
             if ref is None: ref = q.normalized() if q.Length > 1e-6 else cq.Vector(0, 0, 1)
             seite = 1 if q.dot(ref) >= 0 else -1
             lang, kurz = (Lw - uw, uw) if (Lw - uw) >= uw else (uw, Lw - uw)
+            ue = a.uebermass if re.search(r"klappenhebel", wn, re.I) else 0.0   # freies Ende = Klappenmitte, dort Uebermass
+            lang += ue; Lw += ue
             linien.append(LineString([(sa, -seite * kurz), (sa, seite * lang)]))
             # Biegemarken auf dem Arm (abgewickelte Lage ab dem Anfang, der hier am Ende 'kurz' liegt)
             for p0, w, b in pw:
                 y = (p0 - uw) if (Lw - uw) >= uw else (uw - p0)
                 marken.append(((sa, seite * y), "y"))
-            zeilen.append([f"{nr}-{k}", wn, nr, f"{Lw:.1f}", " ".join(f"{p:.1f}/{w:.0f}/R{r - rd:.1f}" for p, w, r in pw) or "gerade", f"{sa:.1f}"])
+            zeilen.append([f"{nr}-{k}", wn + (f" (inkl. {ue:g} mm Uebermass ueber die Klappenmitte)" if ue else ""), nr, f"{Lw:.1f}",
+                           " ".join(f"{p:.1f}/{w:.0f}/R{r - rd:.1f}" for p, w, r in pw) or "gerade", f"{sa:.1f}"])
         lehren.append((nr, linien, marken))
     with open(os.path.join(a.ordner, "Zuschnitt_Biegen.csv"), "w", newline="", encoding="utf-8") as f:
         csv.writer(f, delimiter=";").writerows(zeilen)

@@ -58,7 +58,7 @@
   <div>
     <div class="feld">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-        <label>Modell: <select id="modell"><option value="daten/belegung_modell_340.json">340 schmal leicht schräg</option><option value="daten/belegung_modell_eduard.json">Eduard (Winkelbass)</option><option value="daten/belegung_modell_gerhard.json">Gerhard</option><option value="daten/belegung_modell_andreas.json">Andreas (Knopfzahl fest)</option><option value="daten/belegung_modell_marie38.json">Marie 38</option></select></label>
+        <label>Modell: <select id="modell"><option value="daten/belegung_modell_340.json">340 schmal leicht schräg</option><option value="daten/belegung_modell_eduard.json">Eduard (Winkelbass)</option><option value="daten/belegung_modell_gerhard.json">Gerhard</option><option value="daten/belegung_modell_andreas.json">Andreas (Knopfzahl fest)</option><option value="daten/belegung_modell_marie38.json">Marie 38</option><option value="daten/belegung_modell_markus.json">Markus (Achsen fest)</option><option value="daten/belegung_modell_v3.json">Variante 3 traditionell</option></select></label>
         <span>
           <span class="leg"><i style="background:var(--hb)"></i>Grundbass hinten</span>
           <span class="leg"><i style="background:var(--hbv)"></i>Grundbass vorne</span>
@@ -188,6 +188,10 @@ function pruefe() {
   for (const n in kl) if (!achsen[n]) fehler.push(`Klappe ${n} wird von keinem Knopf geöffnet`);
   if (fehler.length) return { ok: false, fehler, achsen, wahl: null };
   const ber = n => { const xs = achsen[n].map(([r, i]) => KX[r][i - 1]).concat([kl[n].hebel_x]); return [Math.min(...xs), Math.max(...xs)]; };
+  for (const n in achsen) { const xb = kl[n].x_bereich; if (!xb) continue;          // feste Achsen (Markus-Bass)
+    const [x0, x1] = ber(n);
+    if (x0 < xb[0] - 0.5 || x1 > xb[1] + 0.5) fehler.push(`Die Achse von Klappe ${n} reicht nur von X ${xb[0].toFixed(0)} bis ${xb[1].toFixed(0)} – Knöpfe ${achsen[n].map(a => a.join(".")).join(", ")} liegen bei X ${x0.toFixed(0)}–${x1.toFixed(0)}; einen Knopf in diesem Bereich wählen`); }
+  if (fehler.length) return { ok: false, fehler, achsen, wahl: null };
   const folge = Object.keys(achsen).sort((a, b) => (kl[a].gassen.length - kl[b].gassen.length) || ((ber(a)[1] - ber(a)[0]) - (ber(b)[1] - ber(b)[0])));
   const L = M.min_luecke, belegt = {}, wahl = {}; let tief = [0, null];
   const DY = M.gassen_abstand_min || 0;   // zu dicht liegende Gassen sind eine Spur

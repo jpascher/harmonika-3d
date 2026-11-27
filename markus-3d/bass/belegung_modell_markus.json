@@ -1,0 +1,408 @@
+{
+ "modell": "markus",
+ "name": "Markus",
+ "gehaeuse": [
+  382.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 10,
+  "2": 9,
+  "3": 4
+ },
+ "reihen_mitte": {
+  "1": 191.0,
+  "2": 191.0,
+  "3": 191.0
+ },
+ "reihen_zentriert": false,
+ "reihen_fest": true,
+ "teilung": 20.0,
+ "knopf_x": {
+  "1": [
+   101.0,
+   121.0,
+   141.0,
+   161.0,
+   181.0,
+   201.0,
+   221.0,
+   241.0,
+   261.0,
+   281.0
+  ],
+  "2": [
+   111.0,
+   131.0,
+   151.0,
+   171.0,
+   191.0,
+   211.0,
+   231.0,
+   251.0,
+   271.0
+  ],
+  "3": [
+   161.0,
+   181.0,
+   201.0,
+   221.0
+  ]
+ },
+ "knopf_bereich": [
+  101.0,
+  281.0
+ ],
+ "reihen_hinweis": "Markus-Bass: Achsen, Boecke und Klappenhebel wie gezeichnet - frei ist, welcher Knopf welche Klappe oeffnet; Knopfzahl je Reihe fest",
+ "knopf_y": {
+  "1": 206.5,
+  "2": 213.5,
+  "3": 220.5
+ },
+ "gassen": {
+  "G1": 148.3,
+  "G2": 54.5,
+  "G3": 58.7,
+  "S5": 47.5,
+  "G4": 51.3,
+  "G5": 106.6,
+  "G6": 102.7,
+  "G7": 97.6,
+  "S18": 44.3
+ },
+ "min_luecke": 12.0,
+ "gassen_abstand_min": 0.0,
+ "klappen": {
+  "K9": {
+   "ziel": [
+    75.83,
+    166.31
+   ],
+   "hebel_x": 75.83,
+   "gassen": [
+    "G1"
+   ],
+   "art": "Grundbass vorne",
+   "ton": "A/E0",
+   "achse": 0,
+   "x_bereich": [
+    42.9,
+    168.9
+   ]
+  },
+  "K8": {
+   "ziel": [
+    288.68,
+    166.31
+   ],
+   "hebel_x": 289.41,
+   "gassen": [
+    "G1"
+   ],
+   "art": "Grundbass vorne",
+   "ton": "C/AS0",
+   "achse": 1,
+   "x_bereich": [
+    168.9,
+    327.1
+   ]
+  },
+  "K3": {
+   "ziel": [
+    236.99,
+    78.35
+   ],
+   "hebel_x": 237.01,
+   "gassen": [
+    "G2"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "F0/DES",
+   "achse": 2,
+   "x_bereich": [
+    107.7,
+    249.5
+   ]
+  },
+  "K6": {
+   "ziel": [
+    342.99,
+    78.35
+   ],
+   "hebel_x": 342.99,
+   "gassen": [
+    "G3"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "AS0/ES",
+   "achse": 3,
+   "x_bereich": [
+    222.3,
+    363.2
+   ]
+  },
+  "K7": {
+   "ziel": [
+    88.49,
+    78.35
+   ],
+   "hebel_x": 88.24,
+   "gassen": [
+    "S5"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "G0/C",
+   "achse": 4,
+   "x_bereich": [
+    18.7,
+    236.1
+   ]
+  },
+  "K10": {
+   "ziel": [
+    187.49,
+    78.35
+   ],
+   "hebel_x": 187.05,
+   "gassen": [
+    "G3"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "ES/B",
+   "achse": 5,
+   "x_bereich": [
+    169.7,
+    222.3
+   ]
+  },
+  "K1": {
+   "ziel": [
+    289.99,
+    78.35
+   ],
+   "hebel_x": 291.23,
+   "gassen": [
+    "G4"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "H/FIS0",
+   "achse": 6,
+   "x_bereich": [
+    168.2,
+    308.4
+   ]
+  },
+  "B2": {
+   "ziel": [
+    261.59,
+    124.0
+   ],
+   "hebel_x": 261.54,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter rechts",
+   "ton": "hm/fis",
+   "achse": 7,
+   "x_bereich": [
+    239.5,
+    309.7
+   ]
+  },
+  "B1": {
+   "ziel": [
+    295.59,
+    124.0
+   ],
+   "hebel_x": 295.59,
+   "gassen": [
+    "G6"
+   ],
+   "art": "Begleiter rechts",
+   "ton": "des/as",
+   "achse": 8,
+   "x_bereich": [
+    235.5,
+    309.7
+   ]
+  },
+  "K4": {
+   "ziel": [
+    137.99,
+    78.35
+   ],
+   "hebel_x": 138.05,
+   "gassen": [
+    "G3"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "B/F0",
+   "achse": 9,
+   "x_bereich": [
+    112.6,
+    169.7
+   ]
+  },
+  "B7": {
+   "ziel": [
+    91.59,
+    124.0
+   ],
+   "hebel_x": 92.29,
+   "gassen": [
+    "G7"
+   ],
+   "art": "Begleiter links",
+   "ton": "b/f",
+   "achse": 10,
+   "x_bereich": [
+    84.6,
+    153.1
+   ]
+  },
+  "B8": {
+   "ziel": [
+    57.59,
+    124.0
+   ],
+   "hebel_x": 56.94,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter links",
+   "ton": "gm/c",
+   "achse": 11,
+   "x_bereich": [
+    52.3,
+    153.4
+   ]
+  },
+  "B5": {
+   "ziel": [
+    159.59,
+    124.0
+   ],
+   "hebel_x": 159.38,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter links",
+   "ton": "cm/as",
+   "achse": 12,
+   "x_bereich": [
+    153.4,
+    190.8
+   ]
+  },
+  "B6": {
+   "ziel": [
+    125.59,
+    124.0
+   ],
+   "hebel_x": 125.73,
+   "gassen": [
+    "G6"
+   ],
+   "art": "Begleiter links",
+   "ton": "es/b",
+   "achse": 13,
+   "x_bereich": [
+    116.2,
+    190.8
+   ]
+  },
+  "B3": {
+   "ziel": [
+    227.59,
+    124.0
+   ],
+   "hebel_x": 228.11,
+   "gassen": [
+    "G6"
+   ],
+   "art": "Begleiter rechts",
+   "ton": "as/es",
+   "achse": 14,
+   "x_bereich": [
+    190.8,
+    235.5
+   ]
+  },
+  "B4": {
+   "ziel": [
+    193.59,
+    124.0
+   ],
+   "hebel_x": 196.14,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter rechts",
+   "ton": "fm/des",
+   "achse": 15,
+   "x_bereich": [
+    190.8,
+    239.5
+   ]
+  },
+  "K2": {
+   "ziel": [
+    343.01,
+    128.65
+   ],
+   "hebel_x": 343.93,
+   "gassen": [
+    "G7"
+   ],
+   "art": "Grundbass vorne",
+   "ton": "DES/AS0",
+   "achse": 16,
+   "x_bereich": [
+    270.1,
+    365.0
+   ]
+  },
+  "K5": {
+   "ziel": [
+    38.99,
+    78.35
+   ],
+   "hebel_x": 39.22,
+   "gassen": [
+    "S18"
+   ],
+   "art": "Grundbass hinten",
+   "ton": "D/D",
+   "achse": 17,
+   "x_bereich": [
+    18.7,
+    236.1
+   ]
+  }
+ },
+ "standard": {
+  "2.9": "K1",
+  "3.2": "K1",
+  "3.3": "K7",
+  "1.2": "K3",
+  "3.4": "K5",
+  "2.1": "K5",
+  "1.1": "K9",
+  "1.6": "K10",
+  "2.5": "K8",
+  "1.10": "K2",
+  "1.8": "K6",
+  "2.3": "K7",
+  "2.7": "K3",
+  "3.1": "K9",
+  "1.4": "K4",
+  "1.9": "B1",
+  "2.8": "B2",
+  "1.7": "B3",
+  "2.6": "B4",
+  "1.5": "B6",
+  "2.4": "B5",
+  "1.3": "B7",
+  "2.2": "B8"
+ }
+}

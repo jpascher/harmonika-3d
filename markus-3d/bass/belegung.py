@@ -111,6 +111,14 @@ def verteile(zuo, katalog, gassen, knopf_x, min_luecke=12.0, gassen_dy=0.0):
     def bereich(kl):
         xs = [knopf_x(r, i - 1) for r, i in achsen[kl]] + [katalog[kl]["hebel_x"]]
         return min(xs), max(xs)
+    for kl in sorted(achsen):                                         # 27.11.2026: feste Achsen (Markus) - Knoepfe muessen erreichbar sein
+        xb = katalog[kl].get("x_bereich")
+        if xb:
+            x0, x1 = bereich(kl)
+            if x0 < xb[0] - 0.5 or x1 > xb[1] + 0.5:
+                raise BelegungsFehler(f"Belegung nicht baubar: die Achse von Klappe {kl} reicht nur von X {xb[0]:.0f} bis {xb[1]:.0f}, "
+                                      f"Knoepfe {' '.join(f'{r}.{i}' for r, i in sorted(achsen[kl]))} liegen bei X {x0:.0f}-{x1:.0f}; "
+                                      "einen Knopf in diesem Bereich waehlen")
     reihenfolge = sorted(achsen, key=lambda kl: (len(katalog[kl]["gassen"]), bereich(kl)[1] - bereich(kl)[0]))
     # wenig Auswahl zuerst, dann kurze Achsen (sie bekommen die Gasse nahe der Klappe, lange/gekoppelte weichen aus);
     # geht es nicht auf, wird zurueckgegangen und eine andere Verteilung probiert (Suche mit Ruecksprung)
@@ -159,7 +167,7 @@ def baue_tabelle(pfad, katalog, gassen, knopf_x, reihen, min_luecke=12.0, gassen
 def lade_modell(pfad_json, belegung=None, teilung=None):
     """Modell laden; mit belegung (Datei/Kurzform) gelten deren Knopfzahlen R1/R2, mit teilung die Knopfteilung"""
     m = json.load(open(pfad_json, encoding="utf-8"))
-    katalog = {k: {"ziel": tuple(v["ziel"]), "hebel_x": v["hebel_x"], "gassen": v["gassen"]} for k, v in m["klappen"].items()}
+    katalog = {k: {"ziel": tuple(v["ziel"]), "hebel_x": v["hebel_x"], "gassen": v["gassen"], "x_bereich": v.get("x_bereich")} for k, v in m["klappen"].items()}
     reihen = {int(r): n for r, n in m["reihen"].items()}
     if belegung: reihen = reihen_aus(lies(belegung)[0], reihen)
     kx = knopf_lagen(m, reihen, teilung)

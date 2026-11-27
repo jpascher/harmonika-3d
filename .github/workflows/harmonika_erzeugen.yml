@@ -20,7 +20,7 @@ on:
       bass_variante:
         description: "Bass: Bassteil"
         type: choice
-        options: [markus, marie38, eduard, gerhard, andreas, v340]
+        options: [markus, marie38, eduard, gerhard, andreas, v340, v3]
         default: markus
       instrument:
         description: "Diskant: Instrument (Markus 3-choerig, Marie 2-choerig)"
@@ -47,7 +47,7 @@ on:
         type: string
         default: ""
       belegung:
-        description: "Bass: freie Belegung (nicht beim Markus-Bass) - Kurzform von der Seite 'Bassbelegung zuordnen' (R1=10, 1.1=V077, ...), leer = wie gebaut"
+        description: "Bass: freie Belegung - Kurzform von der Seite 'Bassbelegung zuordnen' (R1=10, 1.1=V077, ...), leer = wie gebaut"
         type: string
         default: ""
       teilung:

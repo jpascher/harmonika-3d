@@ -19,7 +19,7 @@ body:
     attributes:
       label: "Bass: Bassteil"
       description: Nur wenn Teil = bass
-      options: [markus, marie38, eduard, gerhard, andreas, v340]
+      options: [markus, marie38, eduard, gerhard, andreas, v340, v3]
   - type: dropdown
     id: teilung
     attributes:
@@ -41,7 +41,7 @@ body:
   - type: textarea
     id: belegung
     attributes:
-      label: "Bass: Belegung (nicht beim Markus-Bass)"
+      label: "Bass: Belegung"
       description: Kurzform von der Seite „Bassbelegung zuordnen“ einfügen (R1=/R2= Knopfzahl je Reihe, Knöpfe ohne Zuordnung bleiben blind); leer = wie gebaut
       placeholder: "R1=9, R2=9, 1.1=V077, 1.2=BL152, ..."
   - type: dropdown

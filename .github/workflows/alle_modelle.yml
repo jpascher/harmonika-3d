@@ -46,7 +46,7 @@ jobs:
               for l in ("380", "400", "410"):
                   jobs.append({"name": f"Bass_Markus_T{t}_L{l}", "teil": "bass", "bass_variante": "markus", "teilung": t, "laenge": l,
                                "instrument": "markus", "griffstock": "standard", "knoepfe": "50", "abstand": "20"})
-          for v in ("marie38", "eduard", "gerhard", "andreas", "v340"):
+          for v in ("marie38", "eduard", "gerhard", "andreas", "v340", "v3"):
               jobs.append({"name": f"Bass_{v.capitalize()}", "teil": "bass", "bass_variante": v, "teilung": "standard", "laenge": "",
                            "instrument": "markus", "griffstock": "standard", "knoepfe": "50", "abstand": "20"})
           a = os.environ["AUSWAHL"].split()

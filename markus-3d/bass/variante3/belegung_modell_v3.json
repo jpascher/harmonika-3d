@@ -1,0 +1,318 @@
+{
+ "modell": "v3",
+ "name": "Variante 3 traditionell",
+ "gehaeuse": [
+  382.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 9,
+  "2": 8
+ },
+ "reihen_mitte": {
+  "1": 191.0,
+  "2": 191.0
+ },
+ "reihen_zentriert": false,
+ "reihen_fest": true,
+ "teilung": 20.0,
+ "knopf_x": {
+  "1": [
+   111.0,
+   131.0,
+   151.0,
+   171.0,
+   191.0,
+   211.0,
+   231.0,
+   251.0,
+   271.0
+  ],
+  "2": [
+   121.0,
+   141.0,
+   161.0,
+   181.0,
+   201.0,
+   221.0,
+   241.0,
+   261.0
+  ]
+ },
+ "knopf_bereich": [
+  111.0,
+  271.0
+ ],
+ "reihen_hinweis": "Variante 3: Knopfzahl je Reihe fest (9 / 8); die Achsen werden automatisch in Reihen hinter den Klappen gelegt",
+ "knopf_y": {
+  "1": 206.5,
+  "2": 213.5
+ },
+ "gassen": {
+  "HB0": 53.6,
+  "HB1": 50.4,
+  "HB2": 47.2,
+  "HB3": 44.0,
+  "BG0": 113.6,
+  "BG1": 110.4,
+  "BG2": 107.2,
+  "BG3": 104.0,
+  "SH3": 20.0,
+  "SH2": 22.0,
+  "SH1": 24.0,
+  "Z0": 140.0
+ },
+ "min_luecke": 15.0,
+ "gassen_abstand_min": 0.0,
+ "klappen": {
+  "H8": {
+   "ziel": [
+    339.5,
+    83.2
+   ],
+   "hebel_x": 339.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2",
+    "HB3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H7": {
+   "ziel": [
+    295.5,
+    82.2
+   ],
+   "hebel_x": 295.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2",
+    "HB3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H6": {
+   "ziel": [
+    251.5,
+    83.2
+   ],
+   "hebel_x": 251.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2",
+    "HB3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H5": {
+   "ziel": [
+    207.5,
+    82.2
+   ],
+   "hebel_x": 207.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2",
+    "HB3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H4": {
+   "ziel": [
+    163.5,
+    83.2
+   ],
+   "hebel_x": 163.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2",
+    "HB3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H3": {
+   "ziel": [
+    119.5,
+    82.2
+   ],
+   "hebel_x": 119.5,
+   "gassen": [
+    "SH3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H2": {
+   "ziel": [
+    85.5,
+    82.2
+   ],
+   "hebel_x": 85.5,
+   "gassen": [
+    "SH2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H1": {
+   "ziel": [
+    41.5,
+    83.2
+   ],
+   "hebel_x": 41.5,
+   "gassen": [
+    "SH1"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "B8": {
+   "ziel": [
+    319.09,
+    132.0
+   ],
+   "hebel_x": 319.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B7": {
+   "ziel": [
+    285.09,
+    132.0
+   ],
+   "hebel_x": 285.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B6": {
+   "ziel": [
+    251.09,
+    132.0
+   ],
+   "hebel_x": 251.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B5": {
+   "ziel": [
+    217.09,
+    132.0
+   ],
+   "hebel_x": 217.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B4": {
+   "ziel": [
+    183.09,
+    132.0
+   ],
+   "hebel_x": 183.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter links"
+  },
+  "B3": {
+   "ziel": [
+    149.09,
+    132.0
+   ],
+   "hebel_x": 149.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter links"
+  },
+  "B2": {
+   "ziel": [
+    115.09,
+    132.0
+   ],
+   "hebel_x": 115.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter links"
+  },
+  "B1": {
+   "ziel": [
+    81.09,
+    132.0
+   ],
+   "hebel_x": 81.09,
+   "gassen": [
+    "BG0",
+    "BG1",
+    "BG2",
+    "BG3"
+   ],
+   "art": "Begleiter links"
+  },
+  "Z": {
+   "ziel": [
+    89.0,
+    180.38
+   ],
+   "hebel_x": 89.0,
+   "gassen": [
+    "Z0"
+   ],
+   "art": "Grundbass vorne",
+   "x_bereich": [
+    88.0,
+    112.0
+   ]
+  }
+ },
+ "standard": {
+  "1.9": "H8",
+  "2.8": "H7",
+  "1.7": "H6",
+  "2.6": "H5",
+  "1.5": "H4",
+  "2.4": "H3",
+  "2.2": "H2",
+  "1.3": "H1",
+  "1.8": "B8",
+  "2.7": "B7",
+  "1.6": "B6",
+  "1.4": "B5",
+  "2.5": "B4",
+  "2.3": "B3",
+  "1.2": "B2",
+  "2.1": "B1",
+  "1.1": "Z"
+ }
+}
