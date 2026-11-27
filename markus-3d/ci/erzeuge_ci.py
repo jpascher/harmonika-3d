@@ -70,6 +70,9 @@ def main():
                 if not mj: raise SystemExit(f"Freie Belegung gibt es fuer {variante} noch nicht (alle Bassteile ausser Markus)")
                 bel_datei = os.path.join(aus, "belegung.txt")
                 open(bel_datei, "w", encoding="utf-8").write(f"modell = {variante}\n" + "\n".join(t.strip() for t in bel.replace(";", ",").split(",") if t.strip()) + "\n")
+                pr = subprocess.run([py, os.path.join(os.path.dirname(cwd), "belegung.py"), mj[0], bel_datei], cwd=cwd, capture_output=True, text=True)
+                if pr.returncode != 0:                            # 27.11.: vor dem langen Rechnen pruefen, Grund ins Protokoll
+                    raise SystemExit("Belegung nicht baubar:\n" + "\n".join((pr.stdout + pr.stderr).strip().splitlines()[:6]))
                 env_ = dict(os.environ, BASS_BELEGUNG=bel_datei)
                 tag += "_Belegung"
             step = os.path.join(aus, f"Bassteil_{NAMEN[variante]}{tag}.step")
