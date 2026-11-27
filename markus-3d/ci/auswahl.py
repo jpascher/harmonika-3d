@@ -74,8 +74,9 @@ def pruefe(w):
     else:
         a["variante"] = a["bass_variante"]
         if a["belegung"]:
-            ord_ = {"markus": os.path.join(M3D, "bass"), "v3": os.path.join(M3D, "bass", "variante3")}.get(a["bass_variante"], os.path.join(M3D, "bass", a["bass_variante"]))
-            mj = glob.glob(os.path.join(ord_, "belegung_modell_*.json"))
+            ord_ = {"markus": os.path.join(M3D, "bass"), "v3": os.path.join(M3D, "bass", "variante3"), "helikon44": os.path.join(M3D, "bass", "kugellager"),
+                    "helikon45": os.path.join(M3D, "bass", "kugellager")}.get(a["bass_variante"], os.path.join(M3D, "bass", a["bass_variante"]))
+            mj = glob.glob(os.path.join(ord_, f"belegung_modell_{a['bass_variante']}.json")) or glob.glob(os.path.join(ord_, "belegung_modell_*.json"))
             if not mj: raise ValueError(f"Freie Belegung gibt es für {a['bass_variante']} noch nicht")
             import belegung
             belegung.pruefe_alles(mj[0], a["belegung"], a["teilung"])   # Knopfzahl je Reihe (R1=..), Teilung, Gassen

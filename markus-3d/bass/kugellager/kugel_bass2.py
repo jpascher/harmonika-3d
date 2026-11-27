@@ -464,6 +464,8 @@ BASS = [([(1, 109.5)], 36.5, 382.1), ([(2, 119)], 80.5, 379.1), ([(1, 147.5)], 1
         ([(1, 185.5)], 212.5, 382.1), ([(2, 195)] + ([] if VAR45 else [(1, 261.5)]), 256.5, 379.1), ([(2, 233)], 290.5, 385.1), ([(1, 223.5)], 334.5, 388.1)]
 BEGL = [([(1, 128.5)], 59.5, 385.1), ([(2, 138)], 95.5, 388.1), ([(1, 166.5)], 131.5, 391.1), ([(1, 204.5)], 167.5, 388.1),
         ([(2, 176)], 203.5, 394.1), ([(2, 214)], 239.5, 391.1), ([(1, 242.5)], 275.5, 394.1), ([(2, 252)], 311.5, 391.1)]
+import belegung_helikon as _bh                                # 27.11.2026: freie Belegung / Modelldatei fuer die Webseite
+BASS, BEGL = _bh.anwenden(BASS, BEGL, KN_PX, XK, X, VAR45, [28.5, 35.5, 40.0], [50.2, 55.0], L)
 KX = [k[0] for k in kn]
 # U-Achsen an der Stirnflaeche der Basskammer-Vorderleiste (Y 118.5): Achse in Einzelschellen (lager-schelle.dxf:
 # 8.4 x 5.29, Lagerpunkt 2.5 ueber der Auflage, eine Befestigungsschraube), Schenkel an den Enden aufgebogen.
@@ -879,6 +881,20 @@ for k_ in range(len(teile)):
 RASTER, D_FADEN = 4.0, 0.4
 teile += [(gn_, gaze_platte(_g2d[gn_][0], _g2d[gn_][1], _g2d[gn_][2], T_GZ, RASTER, D_FADEN)[0]) for gn_, gs_, tr_ in gaze]
 print("Gaze:", len(gaze), "Stueck, Aussparungen in", sorted({a_ for a_, _ in _aus}))
+
+# ---------------- Kollisionspruefung (27.11.2026): jedes Mechanikteil gegen alle Teile, Ruhelage ----------------
+def _bb_ueber(a_, b_, t_=0.01):
+    return a_.xmin < b_.xmax - t_ and b_.xmin < a_.xmax - t_ and a_.ymin < b_.ymax - t_ and b_.ymin < a_.ymax - t_ and a_.zmin < b_.zmax - t_ and b_.zmin < a_.zmax - t_
+_alle = teile + mech; _mn = {n_ for n_, _ in mech}; _kol = []
+_bbs = {n_: s_.BoundingBox() for n_, s_ in _alle}
+for n1, s1 in mech:
+    for n2, s2 in _alle:
+        if n2 == n1 or (n2 in _mn and n2 < n1) or not _bb_ueber(_bbs[n1], _bbs[n2]): continue
+        try: v_ = s1.intersect(s2).Volume()
+        except Exception: continue
+        if v_ > 0.05: _kol.append((n1, n2, round(v_, 2)))
+print("KOLLISIONEN Mechanik:", len(_kol))
+for k_ in _kol: print("KOLLISION", k_)
 
 # ---------------- Laenge und Zusammenbau ----------------
 BASS_DL = L_END - 380.0

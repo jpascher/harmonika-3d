@@ -63,7 +63,7 @@ def main():
         bel = os.environ.get("BELEGUNG", "").strip()
         env_ = None
         if bel:                                                   # freie Belegung (Webseite "Bassbelegung zuordnen")
-            mj = glob.glob(os.path.join(cwd, "belegung_modell_*.json"))
+            mj = glob.glob(os.path.join(cwd, f"belegung_modell_{variante}.json")) or glob.glob(os.path.join(cwd, "belegung_modell_*.json"))
             if not mj: raise SystemExit(f"Freie Belegung gibt es fuer {variante} noch nicht")
             bel_datei = os.path.join(aus, "belegung.txt")
             open(bel_datei, "w", encoding="utf-8").write(f"modell = {variante}\n" + "\n".join(t.strip() for t in bel.replace(";", ",").split(",") if t.strip()) + "\n")

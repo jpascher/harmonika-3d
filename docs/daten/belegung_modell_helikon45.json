@@ -1,0 +1,297 @@
+{
+ "modell": "helikon45",
+ "name": "Standard Helikon 4/5",
+ "gehaeuse": [
+  380.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 9,
+  "2": 8
+ },
+ "reihen_mitte": {
+  "1": 190.0,
+  "2": 190.0
+ },
+ "reihen_zentriert": false,
+ "reihen_fest": true,
+ "teilung": 20.0,
+ "knopf_x": {
+  "1": [
+   110.0,
+   130.0,
+   150.0,
+   170.0,
+   190.0,
+   210.0,
+   230.0,
+   250.0,
+   270.0
+  ],
+  "2": [
+   120.0,
+   140.0,
+   160.0,
+   180.0,
+   200.0,
+   220.0,
+   240.0,
+   260.0
+  ]
+ },
+ "knopf_bereich": [
+  110.0,
+  270.0
+ ],
+ "reihen_hinweis": "Standard Helikon: Knopfzahl je Reihe fest (9 / 8); Hebellage und Ebenen verteilt das Programm",
+ "knopf_y": {
+  "1": 198.0,
+  "2": 184.0
+ },
+ "gassen": {
+  "HB0": 40.0,
+  "HB1": 46.0,
+  "HB2": 52.0,
+  "BG0": 110.0,
+  "BG1": 116.0,
+  "Z5": 170.0
+ },
+ "min_luecke": 3.0,
+ "gassen_abstand_min": 0.0,
+ "klappen": {
+  "H1": {
+   "ziel": [
+    41.5,
+    60.0
+   ],
+   "hebel_x": 41.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H2": {
+   "ziel": [
+    85.5,
+    60.0
+   ],
+   "hebel_x": 85.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H3": {
+   "ziel": [
+    129.5,
+    60.0
+   ],
+   "hebel_x": 129.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H4": {
+   "ziel": [
+    173.5,
+    60.0
+   ],
+   "hebel_x": 173.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H5": {
+   "ziel": [
+    217.5,
+    60.0
+   ],
+   "hebel_x": 217.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H6": {
+   "ziel": [
+    261.5,
+    60.0
+   ],
+   "hebel_x": 261.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H7": {
+   "ziel": [
+    295.5,
+    60.0
+   ],
+   "hebel_x": 295.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H8": {
+   "ziel": [
+    339.5,
+    60.0
+   ],
+   "hebel_x": 339.5,
+   "gassen": [
+    "HB0",
+    "HB1",
+    "HB2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "B1": {
+   "ziel": [
+    64.5,
+    130.0
+   ],
+   "hebel_x": 64.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter links"
+  },
+  "B2": {
+   "ziel": [
+    100.5,
+    130.0
+   ],
+   "hebel_x": 100.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter links"
+  },
+  "B3": {
+   "ziel": [
+    136.5,
+    130.0
+   ],
+   "hebel_x": 136.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter links"
+  },
+  "B4": {
+   "ziel": [
+    172.5,
+    130.0
+   ],
+   "hebel_x": 172.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter links"
+  },
+  "B5": {
+   "ziel": [
+    208.5,
+    130.0
+   ],
+   "hebel_x": 208.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B6": {
+   "ziel": [
+    244.5,
+    130.0
+   ],
+   "hebel_x": 244.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B7": {
+   "ziel": [
+    280.5,
+    130.0
+   ],
+   "hebel_x": 280.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B8": {
+   "ziel": [
+    316.5,
+    130.0
+   ],
+   "hebel_x": 316.5,
+   "gassen": [
+    "BG0",
+    "BG1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "Z5": {
+   "ziel": [
+    270.0,
+    160.0
+   ],
+   "hebel_x": 270.0,
+   "gassen": [
+    "Z5"
+   ],
+   "art": "Grundbass vorne",
+   "x_bereich": [
+    269.0,
+    271.0
+   ]
+  }
+ },
+ "standard": {
+  "1.1": "H1",
+  "2.1": "H2",
+  "1.3": "H3",
+  "2.3": "H4",
+  "1.5": "H5",
+  "2.5": "H6",
+  "2.7": "H7",
+  "1.7": "H8",
+  "1.2": "B1",
+  "2.2": "B2",
+  "1.4": "B3",
+  "1.6": "B4",
+  "2.4": "B5",
+  "2.6": "B6",
+  "1.8": "B7",
+  "2.8": "B8",
+  "1.9": "Z5"
+ }
+}
