@@ -14,7 +14,7 @@ STANDARD = {"teil": "bass", "bass_variante": "markus", "teilung": "standard", "l
             "griffstock": "standard", "knoepfe": "50", "abstand": "", "hebel": "", "platten": "", "belegung": "", "vorschau": "ja"}
 # Feldtitel im Issue-Formular (.github/ISSUE_TEMPLATE/modell_anfrage.yml) -> Feld
 TITEL = {"Teil": "teil", "Bass: Bassteil": "bass_variante", "Bass: Knopfteilung": "teilung",
-         "Bass: Gehäuselänge (nur Markus-Bass, mm)": "laenge", "Gehäuselänge (mm)": "laenge", "Gehäusebreite (mm)": "breite", "Bass: Belegung (nur v340)": "belegung",
+         "Bass: Gehäuselänge (nur Markus-Bass, mm)": "laenge", "Gehäuselänge (mm)": "laenge", "Gehäusebreite (mm)": "breite", "Bass: Belegung (nur v340)": "belegung", "Bass: Belegung (nicht beim Markus-Bass)": "belegung",
          "Diskant: Instrument": "instrument", "Diskant: Griffstock": "griffstock", "Diskant: Knopfzahl": "knoepfe",
          "Diskant: Knopfabstand (mm)": "abstand", "Diskant: Hebelteilung (mm)": "hebel", "Diskant: Stimmplattenlängen": "platten", "Vorschau erzeugen": "vorschau"}
 
@@ -73,7 +73,7 @@ def pruefe(w):
         a["variante"] = a["bass_variante"]
         if a["belegung"]:
             mj = glob.glob(os.path.join(M3D, "bass", a["bass_variante"], "belegung_modell_*.json"))
-            if not mj: raise ValueError(f"Freie Belegung gibt es für {a['bass_variante']} noch nicht (bisher nur v340)")
+            if not mj: raise ValueError(f"Freie Belegung gibt es für {a['bass_variante']} noch nicht (alle Bassteile ausser Markus)")
             import belegung
             belegung.pruefe_alles(mj[0], a["belegung"], a["teilung"])   # Knopfzahl je Reihe (R1=..), Teilung, Gassen
         a["titel"] = f'Bass {a["bass_variante"]}, Teilung {a["teilung"]}' + (", eigene Belegung" if a["belegung"] else "")

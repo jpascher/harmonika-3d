@@ -1,0 +1,358 @@
+{
+ "modell": "andreas",
+ "name": "Andreas",
+ "gehaeuse": [
+  402.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 9,
+  "2": 10,
+  "3": 4
+ },
+ "reihen_mitte": {
+  "1": 201.0,
+  "2": 201.0,
+  "3": 191.5
+ },
+ "reihen_zentriert": false,
+ "reihen_fest": true,
+ "teilung": 19.0,
+ "knopf_x": {
+  "1": [
+   125.0,
+   144.0,
+   163.0,
+   182.0,
+   201.0,
+   220.0,
+   239.0,
+   258.0,
+   277.0
+  ],
+  "2": [
+   115.5,
+   134.5,
+   153.5,
+   172.5,
+   191.5,
+   210.5,
+   229.5,
+   248.5,
+   267.5,
+   286.5
+  ],
+  "3": [
+   163.0,
+   182.0,
+   201.0,
+   220.0
+  ]
+ },
+ "knopf_bereich": [
+  77.5,
+  324.5
+ ],
+ "reihen_hinweis": "Knopfzahl je Reihe frei (R1 = n), jede Reihe mittig mit der Knopfteilung",
+ "knopf_y": {
+  "1": 198.0,
+  "2": 184.0,
+  "3": 170.0
+ },
+ "gassen": {
+  "G1": 26.6,
+  "G2": 47.0,
+  "G3": 52.5,
+  "G4": 57.5,
+  "G5": 93.5,
+  "G6": 99.0,
+  "G7": 104.5,
+  "G8": 110.0,
+  "G9": 115.5,
+  "G10": 153.0
+ },
+ "min_luecke": 12.0,
+ "gassen_abstand_min": 3.0,
+ "klappen": {
+  "BL1": {
+   "ziel": [
+    33.74,
+    62.34
+   ],
+   "hebel_x": 53.6,
+   "gassen": [
+    "G1"
+   ],
+   "art": "Begleiter links"
+  },
+  "H083": {
+   "ziel": [
+    83.74,
+    75.49
+   ],
+   "hebel_x": 83.75,
+   "gassen": [
+    "G2",
+    "G4",
+    "G3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H319": {
+   "ziel": [
+    318.74,
+    75.48
+   ],
+   "hebel_x": 318.7,
+   "gassen": [
+    "G2",
+    "G4",
+    "G3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H131": {
+   "ziel": [
+    130.75,
+    75.49
+   ],
+   "hebel_x": 130.7,
+   "gassen": [
+    "G3",
+    "G4",
+    "G2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H178": {
+   "ziel": [
+    177.74,
+    75.48
+   ],
+   "hebel_x": 177.7,
+   "gassen": [
+    "G3",
+    "G4",
+    "G2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H272": {
+   "ziel": [
+    271.74,
+    75.48
+   ],
+   "hebel_x": 271.7,
+   "gassen": [
+    "G3",
+    "G4",
+    "G2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H366": {
+   "ziel": [
+    365.73,
+    75.48
+   ],
+   "hebel_x": 365.7,
+   "gassen": [
+    "G3",
+    "G4",
+    "G2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "BL2": {
+   "ziel": [
+    33.76,
+    88.59
+   ],
+   "hebel_x": 58.6,
+   "gassen": [
+    "G4"
+   ],
+   "art": "Begleiter links"
+  },
+  "H225": {
+   "ziel": [
+    224.75,
+    75.49
+   ],
+   "hebel_x": 224.75,
+   "gassen": [
+    "G4",
+    "G3",
+    "G2"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "BL3": {
+   "ziel": [
+    33.74,
+    114.84
+   ],
+   "hebel_x": 58.6,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter links"
+  },
+  "BR3": {
+   "ziel": [
+    368.28,
+    123.67
+   ],
+   "hebel_x": 349.9,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "K083": {
+   "ziel": [
+    83.74,
+    135.49
+   ],
+   "hebel_x": 83.75,
+   "gassen": [
+    "G6",
+    "G8",
+    "G7"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K319": {
+   "ziel": [
+    318.74,
+    135.48
+   ],
+   "hebel_x": 318.7,
+   "gassen": [
+    "G7",
+    "G8",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K272": {
+   "ziel": [
+    271.74,
+    135.48
+   ],
+   "hebel_x": 271.7,
+   "gassen": [
+    "G8",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K131": {
+   "ziel": [
+    130.75,
+    135.49
+   ],
+   "hebel_x": 130.7,
+   "gassen": [
+    "G8",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K178": {
+   "ziel": [
+    177.74,
+    135.49
+   ],
+   "hebel_x": 183.5,
+   "gassen": [
+    "G9"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K225": {
+   "ziel": [
+    224.74,
+    135.48
+   ],
+   "hebel_x": 224.75,
+   "gassen": [
+    "G8",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "BL4": {
+   "ziel": [
+    33.76,
+    141.09
+   ],
+   "hebel_x": 58.6,
+   "gassen": [
+    "G9"
+   ],
+   "art": "Begleiter links"
+  },
+  "BR2": {
+   "ziel": [
+    368.26,
+    149.92
+   ],
+   "hebel_x": 342.9,
+   "gassen": [
+    "G9"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "BL5": {
+   "ziel": [
+    33.76,
+    176.17
+   ],
+   "hebel_x": 56.0,
+   "gassen": [
+    "G10"
+   ],
+   "art": "Begleiter links"
+  },
+  "BR1": {
+   "ziel": [
+    368.28,
+    176.17
+   ],
+   "hebel_x": 342.9,
+   "gassen": [
+    "G10"
+   ],
+   "art": "Begleiter rechts"
+  }
+ },
+ "standard": {
+  "1.1": "H131",
+  "1.2": "BL2",
+  "1.3": "H083",
+  "1.4": "BL3",
+  "1.5": "H225",
+  "1.6": "BL1",
+  "1.7": "K083",
+  "1.8": "BR2",
+  "1.9": "K319",
+  "2.1": "K083",
+  "2.2": "K319",
+  "2.3": "BL4",
+  "2.4": "H178",
+  "2.5": "BL5",
+  "2.6": "H319",
+  "2.7": "BR1",
+  "2.8": "K272",
+  "2.9": "BR3",
+  "2.10": "H366",
+  "3.1": "K131",
+  "3.2": "K178",
+  "3.3": "K225",
+  "3.4": "H272"
+ }
+}

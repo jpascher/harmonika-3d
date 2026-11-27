@@ -48,6 +48,8 @@ for n_, y_, ks_, hs_ in _A:
     for xa_, pz_ in hs_:
         k_ = km(*pz_); hh_.append((k_[0] if xa_ is None else xa_, k_) if n_.startswith("B") else (k_[0], k_))
     ACHSEN.append((n_, y_, [kn_(x_) for x_ in ks_], hh_))
+import os; sys.path.insert(0, os.path.dirname(os.getcwd())); import belegung_hook   # 27.11.2026: freie Belegung / Modelldatei
+ACHSEN, _KX_, _WEG_ = belegung_hook.anwenden("eduard", "Eduard Winkelbass", ACHSEN, kn, None, None, (L, B), T_KNOPF, km)
 for q_ in ACHSEN: print("Achse", q_[0], q_[1], q_[2], [(round(h[0], 1), tuple(round(v, 1) for v in h[1])) for h in q_[3]])
 # Hindernisse fuer Lagerboecke (Grundriss unter dem Boden)
 rechtecke = [(b_.xmin - 0.5 - 0.3, b_.xmax + 0.5 + 0.3, b_.ymin - 0.5 - 0.3, b_.ymax + 0.5 + 0.3) for b_ in

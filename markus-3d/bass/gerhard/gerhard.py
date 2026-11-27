@@ -38,6 +38,7 @@ RD = ezdxf.readfile("rahmen.dxf").modelspace()
 # Ø10) ueber eine 7-mm-Blende erhoeht; Hoehen und Teilung nach der Marie-Zeichnung (Teilung variabel), Mitte X 198.
 X_KM = L / 2                                   # Knopfreihen mittig am Korpus
 REIHEN_N = {1: 8, 2: 11, 3: 10}                  # Gerhard: 29 Knoepfe in drei Reihen (Zeichnung)
+import os; sys.path.insert(0, os.path.dirname(os.getcwd())); import belegung_hook; REIHEN_N = belegung_hook.reihen(REIHEN_N)   # R1/R2/R3 der Belegung
 Z_RH = {1: 14.0, 2: 28.0, 3: 42.0}               # Schnitt: Bassdruecker 3875 / 3889 / 3903 - 3861
 R_RH = {1: 4.25, 2: 4.0, 3: 4.0}                  # Stift 6,5 (Zeichnung), Filzeinlage
 kn = [(round(X_KM + (i_ - (n_ - 1) / 2) * T_KNOPF, 2), Z_RH[r_], R_RH[r_], r_) for r_, n_ in REIHEN_N.items() for i_ in range(n_)]

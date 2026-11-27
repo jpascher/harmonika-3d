@@ -13,7 +13,8 @@ Z_KH = Z_KL_U - D_STANGE / 2 - 0.05
 HUB_K = 6.0
 mech = []
 R_Z = {"A": Z_RH[1], "B": Z_RH[2]}
-X_R = {"A": [round(X_KM + (i_ - 4) * T_KNOPF, 2) for i_ in range(9)], "B": [round(X_KM + (i_ - 4.5) * T_KNOPF, 2) for i_ in range(10)]}
+X_R = {"A": [round(X_KM + (i_ - (REIHEN_N[1] - 1) / 2) * T_KNOPF, 2) for i_ in range(REIHEN_N[1])],
+       "B": [round(X_KM + (i_ - (REIHEN_N[2] - 1) / 2) * T_KNOPF, 2) for i_ in range(REIHEN_N[2])]}   # wie gezeichnet 9 / 10
 def kn(r_, x_): return min(X_R[r_], key=lambda q_: abs(q_ - x_))
 KMY = 135.5; KUY = 76.3                                   # Klappenmitten Kanalreihe / untere Reihe
 # (Name, Achs-Y, Arme [(Reihe, Knopf-X)], Hebel [(X am Achsansatz, Klappenmitte)])
@@ -38,6 +39,12 @@ ACHSEN = [
     ("BR4", 115.3, [("A", 248.0)], [(324.0, (350.4, 152.1))]),
 ]
 ACHSEN = [(n_, y_, [(r_, kn(r_, x_)) for r_, x_ in a_], h_) for n_, y_, a_, h_ in ACHSEN]
+import os; sys.path.insert(0, os.path.dirname(os.getcwd())); import belegung_hook   # 27.11.2026: freie Belegung / Modelldatei (Reihe A = 1, B = 2)
+_RN = {"A": 1, "B": 2}; _RB = {1: "A", 2: "B"}
+_KN_ = [(x_, 0, 0, _RN[r_]) for r_ in X_R for x_ in X_R[r_]]
+_ACH_ = [(n_, y_, [(_RN[r_], x_) for r_, x_ in a_], h_) for n_, y_, a_, h_ in ACHSEN]
+_ACH_, _KX_, _WEG_ = belegung_hook.anwenden("marie38", "Marie 38", _ACH_, _KN_, None, None, (L, B), T_KNOPF)
+ACHSEN = [(n_, y_, [(_RB[r_], x_) for r_, x_ in a_], h_) for n_, y_, a_, h_ in _ACH_]
 # Hindernisse fuer Lagerboecke (Grundriss unter dem Boden)
 rechtecke = [(x0 - RAND_V + 0.2, x1 + RAND_V - 0.2, y0 - RAND_V + 0.2, y1 + RAND_V - 0.2) for (x0, x1, y0, y1) in oeff]
 kreise = [((s_.BoundingBox().xmin + s_.BoundingBox().xmax) / 2, (s_.BoundingBox().ymin + s_.BoundingBox().ymax) / 2, s_.BoundingBox().xlen / 2 + 0.3)

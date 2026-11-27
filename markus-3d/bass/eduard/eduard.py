@@ -38,6 +38,7 @@ RD = ezdxf.readfile("rahmen.dxf").modelspace()
 # Ø10) ueber eine 7-mm-Blende erhoeht; Hoehen und Teilung nach der Marie-Zeichnung (Teilung variabel), Mitte X 198.
 X_KM = L / 2                                   # Knopfreihen mittig am Korpus
 REIHEN_N = {1: 11, 2: 10}                       # Eduard: 21 Knoepfe (Schubstangen X 91..291 im 10er-Raster)
+import os; sys.path.insert(0, os.path.dirname(os.getcwd())); import belegung_hook; REIHEN_N = belegung_hook.reihen(REIHEN_N)   # R1/R2 der Belegung
 Z_RH = {1: 401.4 - 387.5, 2: 401.4 - 373.5}                  # 13,9 / 27,9 ueber der Unterkante
 R_RH = {1: 5.5, 2: 5.0}
 kn = [(round(X_KM + (i_ - (n_ - 1) / 2) * T_KNOPF, 2), Z_RH[r_], R_RH[r_], r_) for r_, n_ in REIHEN_N.items() for i_ in range(n_)]

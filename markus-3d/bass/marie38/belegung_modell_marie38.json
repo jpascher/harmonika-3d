@@ -1,0 +1,307 @@
+{
+ "modell": "marie38",
+ "name": "Marie 38",
+ "gehaeuse": [
+  382.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 9,
+  "2": 10
+ },
+ "reihen_mitte": {
+  "1": 191.0,
+  "2": 191.0
+ },
+ "reihen_zentriert": true,
+ "reihen_fest": false,
+ "teilung": 19.0,
+ "knopf_x": {
+  "1": [
+   115.0,
+   134.0,
+   153.0,
+   172.0,
+   191.0,
+   210.0,
+   229.0,
+   248.0,
+   267.0
+  ],
+  "2": [
+   105.5,
+   124.5,
+   143.5,
+   162.5,
+   181.5,
+   200.5,
+   219.5,
+   238.5,
+   257.5,
+   276.5
+  ]
+ },
+ "knopf_bereich": [
+  67.5,
+  314.5
+ ],
+ "reihen_hinweis": "Knopfzahl je Reihe frei (R1 = n), jede Reihe mittig mit der Knopfteilung",
+ "knopf_y": {
+  "1": 198.0,
+  "2": 184.0
+ },
+ "gassen": {
+  "G1": 37.3,
+  "G2": 43.3,
+  "G3": 49.3,
+  "G4": 52.0,
+  "G5": 96.3,
+  "G6": 100.3,
+  "G7": 108.3,
+  "G8": 111.0,
+  "G9": 112.3,
+  "G10": 115.3
+ },
+ "min_luecke": 12.0,
+ "gassen_abstand_min": 3.0,
+ "klappen": {
+  "H1": {
+   "ziel": [
+    83.0,
+    76.3
+   ],
+   "hebel_x": 83.0,
+   "gassen": [
+    "G4",
+    "G3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H2": {
+   "ziel": [
+    137.0,
+    76.3
+   ],
+   "hebel_x": 139.5,
+   "gassen": [
+    "G4"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H3": {
+   "ziel": [
+    191.0,
+    76.3
+   ],
+   "hebel_x": 191.0,
+   "gassen": [
+    "G4",
+    "G3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H4": {
+   "ziel": [
+    245.0,
+    76.3
+   ],
+   "hebel_x": 245.0,
+   "gassen": [
+    "G3",
+    "G4"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H5": {
+   "ziel": [
+    299.0,
+    76.3
+   ],
+   "hebel_x": 299.0,
+   "gassen": [
+    "G3",
+    "G4"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "K1": {
+   "ziel": [
+    83.0,
+    135.5
+   ],
+   "hebel_x": 83.0,
+   "gassen": [
+    "G8",
+    "G9",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K2": {
+   "ziel": [
+    137.0,
+    135.5
+   ],
+   "hebel_x": 137.0,
+   "gassen": [
+    "G8",
+    "G9",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K3": {
+   "ziel": [
+    196.0,
+    135.5
+   ],
+   "hebel_x": 196.0,
+   "gassen": [
+    "G9",
+    "G8",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K4": {
+   "ziel": [
+    245.0,
+    135.5
+   ],
+   "hebel_x": 245.0,
+   "gassen": [
+    "G6",
+    "G9",
+    "G8",
+    "G7"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "K5": {
+   "ziel": [
+    299.0,
+    135.5
+   ],
+   "hebel_x": 299.0,
+   "gassen": [
+    "G7",
+    "G9",
+    "G8",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "BL1": {
+   "ziel": [
+    32.6,
+    50.1
+   ],
+   "hebel_x": 56.0,
+   "gassen": [
+    "G1"
+   ],
+   "art": "Begleiter links"
+  },
+  "BL2": {
+   "ziel": [
+    32.6,
+    84.1
+   ],
+   "hebel_x": 60.0,
+   "gassen": [
+    "G2"
+   ],
+   "art": "Begleiter links"
+  },
+  "BL3": {
+   "ziel": [
+    32.6,
+    118.1
+   ],
+   "hebel_x": 58.0,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter links"
+  },
+  "BL4": {
+   "ziel": [
+    32.6,
+    152.1
+   ],
+   "hebel_x": 58.0,
+   "gassen": [
+    "G10"
+   ],
+   "art": "Begleiter links"
+  },
+  "BR1": {
+   "ziel": [
+    350.4,
+    50.1
+   ],
+   "hebel_x": 326.0,
+   "gassen": [
+    "G1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "BR2": {
+   "ziel": [
+    350.4,
+    84.1
+   ],
+   "hebel_x": 322.0,
+   "gassen": [
+    "G2"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "BR3": {
+   "ziel": [
+    350.4,
+    118.1
+   ],
+   "hebel_x": 324.0,
+   "gassen": [
+    "G5"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "BR4": {
+   "ziel": [
+    350.4,
+    152.1
+   ],
+   "hebel_x": 324.0,
+   "gassen": [
+    "G10"
+   ],
+   "art": "Begleiter rechts"
+  }
+ },
+ "standard": {
+  "1.1": "K1",
+  "1.2": "BL4",
+  "1.3": "K2",
+  "1.4": "BL2",
+  "1.5": "K3",
+  "1.6": "BR2",
+  "1.7": "K4",
+  "1.8": "BR4",
+  "1.9": "K5",
+  "2.1": "K4",
+  "2.2": "H1",
+  "2.3": "BL3",
+  "2.4": "H2",
+  "2.5": "BL1",
+  "2.6": "H3",
+  "2.7": "BR1",
+  "2.8": "H4",
+  "2.9": "BR3",
+  "2.10": "H5"
+ }
+}

@@ -56,6 +56,8 @@ for n_, y_, ks_, hs_, weg_ in _A:
     ACHSEN.append((n_, y_, [(r_, xs_) for r_, xk_, xs_ in ks_], [(xa_, km(*pz_)) for xa_, pz_ in hs_]))
     for r_, xk_, xs_ in ks_: KNOPF_X[(n_, r_, xs_)] = xk_
     if weg_: HEBEL_WEG[n_] = weg_
+import os; sys.path.insert(0, os.path.dirname(os.getcwd())); import belegung_hook   # 27.11.2026: freie Belegung / Modelldatei
+ACHSEN, KNOPF_X, HEBEL_WEG = belegung_hook.anwenden("andreas", "Andreas", ACHSEN, kn, KNOPF_X, HEBEL_WEG, (L, B), T_KNOPF, km, fest=True)
 for q_ in ACHSEN: print("Achse", q_[0], q_[1], q_[2], [(round(h[0], 1), tuple(round(v, 1) for v in h[1])) for h in q_[3]])
 # Hindernisse fuer Lagerboecke (Grundriss unter dem Boden)
 _rund = lambda n_: n_.startswith("Begleiterklappe_")

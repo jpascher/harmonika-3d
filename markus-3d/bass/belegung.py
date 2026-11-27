@@ -54,6 +54,22 @@ def knopf_lagen(m, reihen, teilung=None):
     Mitte geschoben. Bei 9/9 ergibt das genau die Zeichnung, bei 10/9 sind beide Reihen exakt mittig."""
     t0 = float(m["teilung"]); t = float(teilung) if teilung not in (None, "", "standard") else t0
     mi = {int(r): x for r, x in m["reihen_mitte"].items()}
+    if m.get("knopf_x"):                                                # 27.11.2026: Knopflagen wie gebaut
+        gebaut = {int(r): v for r, v in m["knopf_x"].items()}
+        if all(len(gebaut.get(r, [])) == n for r, n in reihen.items()):
+            alle = [x for v in gebaut.values() for x in v]; c = (min(alle) + max(alle)) / 2
+            return {r: [round(c + (x - c) * t / t0, 2) for x in gebaut[r]] for r in reihen}
+        if m.get("reihen_fest"):
+            raise BelegungsFehler("Bei diesem Bassteil ist die Knopfzahl je Reihe fest: " + ", ".join(f"R{r} = {len(v)}" for r, v in sorted(gebaut.items())))
+    if m.get("reihen_zentriert"):                                       # 27.11.2026: jede Reihe mittig um die gemeinsame Mitte
+        c = sum(mi.values()) / len(mi)
+        kx = {r: [round(c + (i - (n - 1) / 2) * t, 2) for i in range(n)] for r, n in reihen.items()}
+        x0, x1 = m.get("knopf_bereich", [-1e9, 1e9])
+        for r, xs in kx.items():
+            if xs and (xs[0] < x0 or xs[-1] > x1):
+                raise BelegungsFehler(f"Reihe {r}: {len(xs)} Knoepfe mit {t:g} mm Teilung reichen von X {xs[0]:.0f} bis {xs[-1]:.0f} - "
+                                      f"an der Front ist nur Platz von {x0:g} bis {x1:g}; weniger Knoepfe oder kleinere Teilung")
+        return kx
     c = (min(mi.values()) + max(mi.values())) / 2
     rs = sorted(reihen); o = {r: (mi[r] - c) * t / t0 for r in rs}     # Rasterversatz jeder Reihe gegen die Mitte
     folge = sorted(rs, key=lambda r: mi[r])                            # gezeichnete Reihenfolge von links
@@ -88,7 +104,7 @@ def pruefe(zuo, katalog, reihen):
     n_kopp = len(zuo) - len(katalog)
     return n_kopp, sorted(alle - set(zuo))
 
-def verteile(zuo, katalog, gassen, knopf_x, min_luecke=12.0):
+def verteile(zuo, katalog, gassen, knopf_x, min_luecke=12.0, gassen_dy=0.0):
     """Achsen auf Gassen verteilen. katalog[kl] = {"ziel": (x, y), "hebel_x": x, "gassen": [namen in Vorzugsreihenfolge]}"""
     achsen = {}
     for (r, i), kl in zuo.items(): achsen.setdefault(kl, []).append((r, i))
@@ -98,8 +114,9 @@ def verteile(zuo, katalog, gassen, knopf_x, min_luecke=12.0):
     reihenfolge = sorted(achsen, key=lambda kl: (len(katalog[kl]["gassen"]), bereich(kl)[1] - bereich(kl)[0]))
     # wenig Auswahl zuerst, dann kurze Achsen (sie bekommen die Gasse nahe der Klappe, lange/gekoppelte weichen aus);
     # geht es nicht auf, wird zurueckgegangen und eine andere Verteilung probiert (Suche mit Ruecksprung)
+    nah = {g: [h for h in gassen if abs(gassen[h] - gassen[g]) < max(gassen_dy, 1e-6)] for g in gassen}   # Gassen zu dicht = eine Spur
     def frei(belegt, g, x0, x1):
-        return [n for a, b, n in belegt.get(g, []) if not (x1 + min_luecke <= a or b + min_luecke <= x0)]
+        return [n for h in nah.get(g, [g]) for a, b, n in belegt.get(h, []) if not (x1 + min_luecke <= a or b + min_luecke <= x0)]
     tiefste = [0, None]
     def suche(k, belegt, wahl):
         if k == len(reihenfolge): return wahl
@@ -127,11 +144,13 @@ def verteile(zuo, katalog, gassen, knopf_x, min_luecke=12.0):
                        + ("  (gekoppelt)" if len(kn) > 1 else ""))
     return _A, bericht
 
-def baue_tabelle(pfad, katalog, gassen, knopf_x, reihen, min_luecke=12.0):
+def baue_tabelle(pfad, katalog, gassen, knopf_x, reihen, min_luecke=12.0, gassen_dy=0.0):
     """reihen = Knopfzahl je Reihe wie gebaut (Kopfangaben R1/R2 der Belegung muessen schon darin stecken)"""
     kopf, zuo = lies(pfad)
+    canon = {k.upper(): k for k in katalog}                            # Klappennamen ohne Gross-/Kleinschreibung (Gerhard: Hc, B161k)
+    zuo = {k: canon.get(v.upper(), v) for k, v in zuo.items()}
     n_kopp, blind = pruefe(zuo, katalog, reihen)
-    _A, bericht = verteile(zuo, katalog, gassen, knopf_x, min_luecke)
+    _A, bericht = verteile(zuo, katalog, gassen, knopf_x, min_luecke, gassen_dy)
     print(f"Belegung: {len(zuo)} verdrahtete Knoepfe = {len(katalog)} Klappen + {n_kopp} Kopplungen"
           + (f"; blind (ohne Mechanik): {' '.join(f'{r}.{i}' for r, i in blind)}" if blind else ""))
     for z in bericht: print(z)
@@ -148,7 +167,7 @@ def lade_modell(pfad_json, belegung=None, teilung=None):
 
 def pruefe_alles(pfad_json, belegung, teilung=None):
     m, katalog, gassen, knopf_x, reihen = lade_modell(pfad_json, belegung, teilung)
-    return baue_tabelle(belegung, katalog, gassen, knopf_x, reihen, m.get("min_luecke", 12.0))
+    return baue_tabelle(belegung, katalog, gassen, knopf_x, reihen, m.get("min_luecke", 12.0), m.get("gassen_abstand_min", 0.0))
 
 if __name__ == "__main__":
     # python3 belegung.py <modell.json> <belegung> [teilung]

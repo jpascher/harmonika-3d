@@ -1,0 +1,428 @@
+{
+ "modell": "gerhard",
+ "name": "Gerhard",
+ "gehaeuse": [
+  382.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 8,
+  "2": 11,
+  "3": 10
+ },
+ "reihen_mitte": {
+  "1": 191.0,
+  "2": 191.0,
+  "3": 191.0
+ },
+ "reihen_zentriert": true,
+ "reihen_fest": false,
+ "teilung": 20.0,
+ "knopf_x": {
+  "1": [
+   121.0,
+   141.0,
+   161.0,
+   181.0,
+   201.0,
+   221.0,
+   241.0,
+   261.0
+  ],
+  "2": [
+   91.0,
+   111.0,
+   131.0,
+   151.0,
+   171.0,
+   191.0,
+   211.0,
+   231.0,
+   251.0,
+   271.0,
+   291.0
+  ],
+  "3": [
+   101.0,
+   121.0,
+   141.0,
+   161.0,
+   181.0,
+   201.0,
+   221.0,
+   241.0,
+   261.0,
+   281.0
+  ]
+ },
+ "knopf_bereich": [
+  51.0,
+  331.0
+ ],
+ "reihen_hinweis": "Knopfzahl je Reihe frei (R1 = n), jede Reihe mittig mit der Knopfteilung",
+ "knopf_y": {
+  "1": 198.0,
+  "2": 184.0,
+  "3": 170.0
+ },
+ "gassen": {
+  "G1": 15.6,
+  "G2": 19.6,
+  "G3": 23.6,
+  "G4": 27.6,
+  "G5": 57.6,
+  "G6": 61.1,
+  "G7": 64.6,
+  "G8": 68.1,
+  "G9": 104.9,
+  "G10": 108.2,
+  "G11": 111.5,
+  "G12": 115.5
+ },
+ "min_luecke": 9.5,
+ "klappen": {
+  "B161k": {
+   "ziel": [
+    25.96,
+    42.55
+   ],
+   "hebel_x": 38.0,
+   "gassen": [
+    "G4",
+    "G3"
+   ],
+   "art": "Begleiter (Reihe Y 43)"
+  },
+  "B201b": {
+   "ziel": [
+    190.96,
+    42.55
+   ],
+   "hebel_x": 191.0,
+   "gassen": [
+    "G4",
+    "G3",
+    "G2",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B241": {
+   "ziel": [
+    256.96,
+    42.55
+   ],
+   "hebel_x": 257.0,
+   "gassen": [
+    "G4",
+    "G3",
+    "G2",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B291": {
+   "ziel": [
+    355.96,
+    42.55
+   ],
+   "hebel_x": 356.0,
+   "gassen": [
+    "G4",
+    "G3",
+    "G2",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B131": {
+   "ziel": [
+    58.96,
+    42.55
+   ],
+   "hebel_x": 59.0,
+   "gassen": [
+    "G3",
+    "G4",
+    "G2",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B201": {
+   "ziel": [
+    157.96,
+    42.55
+   ],
+   "hebel_x": 158.0,
+   "gassen": [
+    "G3",
+    "G4",
+    "G2",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B251": {
+   "ziel": [
+    289.96,
+    42.55
+   ],
+   "hebel_x": 296.0,
+   "gassen": [
+    "G3",
+    "G4"
+   ],
+   "art": "Begleiter (Reihe Y 43)"
+  },
+  "B161": {
+   "ziel": [
+    91.96,
+    42.55
+   ],
+   "hebel_x": 92.0,
+   "gassen": [
+    "G2",
+    "G4",
+    "G3",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B211": {
+   "ziel": [
+    223.96,
+    42.55
+   ],
+   "hebel_x": 224.0,
+   "gassen": [
+    "G2",
+    "G4",
+    "G3",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B261": {
+   "ziel": [
+    322.96,
+    42.55
+   ],
+   "hebel_x": 323.0,
+   "gassen": [
+    "G2",
+    "G4",
+    "G3",
+    "G1"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "B171": {
+   "ziel": [
+    124.96,
+    42.55
+   ],
+   "hebel_x": 125.0,
+   "gassen": [
+    "G1",
+    "G4",
+    "G3",
+    "G2"
+   ],
+   "art": "Grundbass (Reihe Y 43)"
+  },
+  "Hg": {
+   "ziel": [
+    167.49,
+    86.63
+   ],
+   "hebel_x": 165.3,
+   "gassen": [
+    "G5",
+    "G7",
+    "G6"
+   ],
+   "art": "Begleiter (Reihe Y 87)"
+  },
+  "Hf": {
+   "ziel": [
+    214.59,
+    86.63
+   ],
+   "hebel_x": 214.6,
+   "gassen": [
+    "G5",
+    "G8"
+   ],
+   "art": "Grundbass (Reihe Y 87)"
+  },
+  "Hc": {
+   "ziel": [
+    308.79,
+    86.63
+   ],
+   "hebel_x": 308.8,
+   "gassen": [
+    "G5",
+    "G8"
+   ],
+   "art": "Grundbass (Reihe Y 87)"
+  },
+  "HA1": {
+   "ziel": [
+    120.39,
+    86.63
+   ],
+   "hebel_x": 115.8,
+   "gassen": [
+    "G6",
+    "G7",
+    "G5"
+   ],
+   "art": "Begleiter (Reihe Y 87)"
+  },
+  "HA2": {
+   "ziel": [
+    261.69,
+    86.63
+   ],
+   "hebel_x": 256.0,
+   "gassen": [
+    "G7",
+    "G6",
+    "G5"
+   ],
+   "art": "Begleiter (Reihe Y 87)"
+  },
+  "Hj": {
+   "ziel": [
+    73.29,
+    86.63
+   ],
+   "hebel_x": 73.4,
+   "gassen": [
+    "G8",
+    "G5"
+   ],
+   "art": "Grundbass (Reihe Y 87)"
+  },
+  "B12": {
+   "ziel": [
+    43.04,
+    131.52
+   ],
+   "hebel_x": 43.0,
+   "gassen": [
+    "G9"
+   ],
+   "art": "Grundbass (Reihe Y 132)"
+  },
+  "Hl": {
+   "ziel": [
+    337.43,
+    133.28
+   ],
+   "hebel_x": 337.4,
+   "gassen": [
+    "G9",
+    "G11",
+    "G10"
+   ],
+   "art": "Grundbass (Reihe Y 133)"
+  },
+  "He": {
+   "ziel": [
+    191.04,
+    133.28
+   ],
+   "hebel_x": 191.0,
+   "gassen": [
+    "G10",
+    "G11",
+    "G9"
+   ],
+   "art": "Grundbass (Reihe Y 133)"
+  },
+  "Hi": {
+   "ziel": [
+    96.84,
+    133.28
+   ],
+   "hebel_x": 96.8,
+   "gassen": [
+    "G11",
+    "G10",
+    "G9"
+   ],
+   "art": "Grundbass (Reihe Y 133)"
+  },
+  "Hd": {
+   "ziel": [
+    238.14,
+    133.28
+   ],
+   "hebel_x": 210.0,
+   "gassen": [
+    "G11",
+    "G12"
+   ],
+   "art": "Begleiter (Reihe Y 133)"
+  },
+  "Hk": {
+   "ziel": [
+    285.24,
+    133.28
+   ],
+   "hebel_x": 285.3,
+   "gassen": [
+    "G11",
+    "G10",
+    "G9"
+   ],
+   "art": "Grundbass (Reihe Y 133)"
+  },
+  "Hh": {
+   "ziel": [
+    143.94,
+    133.28
+   ],
+   "hebel_x": 156.0,
+   "gassen": [
+    "G12",
+    "G11"
+   ],
+   "art": "Begleiter (Reihe Y 133)"
+  }
+ },
+ "standard": {
+  "1.1": "HA2",
+  "1.2": "Hl",
+  "1.3": "B161",
+  "1.4": "Hg",
+  "1.5": "B201b",
+  "1.6": "Hk",
+  "1.7": "Hj",
+  "1.8": "B261",
+  "2.1": "He",
+  "2.2": "HA1",
+  "2.3": "B131",
+  "2.4": "Hh",
+  "2.5": "B171",
+  "2.6": "Hf",
+  "2.7": "B211",
+  "2.8": "Hc",
+  "2.9": "B251",
+  "2.10": "HA2",
+  "2.11": "B291",
+  "3.1": "Hj",
+  "3.2": "B12",
+  "3.3": "Hi",
+  "3.4": "B161k",
+  "3.5": "Hd",
+  "3.6": "B201",
+  "3.7": "He",
+  "3.8": "B241",
+  "3.9": "HA1",
+  "3.10": "Hk"
+ }
+}

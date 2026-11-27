@@ -1,0 +1,317 @@
+{
+ "modell": "eduard",
+ "name": "Eduard Winkelbass",
+ "gehaeuse": [
+  382.0,
+  207.0
+ ],
+ "reihen": {
+  "1": 11,
+  "2": 10
+ },
+ "reihen_mitte": {
+  "1": 191.0,
+  "2": 191.0
+ },
+ "reihen_zentriert": true,
+ "reihen_fest": false,
+ "teilung": 20.0,
+ "knopf_x": {
+  "1": [
+   91.0,
+   111.0,
+   131.0,
+   151.0,
+   171.0,
+   191.0,
+   211.0,
+   231.0,
+   251.0,
+   271.0,
+   291.0
+  ],
+  "2": [
+   101.0,
+   121.0,
+   141.0,
+   161.0,
+   181.0,
+   201.0,
+   221.0,
+   241.0,
+   261.0,
+   281.0
+  ]
+ },
+ "knopf_bereich": [
+  51.0,
+  331.0
+ ],
+ "reihen_hinweis": "Knopfzahl je Reihe frei (R1 = n), jede Reihe mittig mit der Knopfteilung",
+ "knopf_y": {
+  "1": 198.0,
+  "2": 184.0
+ },
+ "gassen": {
+  "G1": 21.1,
+  "G2": 26.1,
+  "G3": 70.3,
+  "G4": 75.3,
+  "G5": 110.1,
+  "G6": 114.1,
+  "G7": 116.6,
+  "G8": 119.1
+ },
+ "min_luecke": 12.0,
+ "gassen_abstand_min": 3.0,
+ "klappen": {
+  "H1": {
+   "ziel": [
+    71.71,
+    92.78
+   ],
+   "hebel_x": 71.71,
+   "gassen": [
+    "G3",
+    "G4"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H2": {
+   "ziel": [
+    71.71,
+    137.26
+   ],
+   "hebel_x": 71.71,
+   "gassen": [
+    "G6",
+    "G8",
+    "G7",
+    "G5"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "H3": {
+   "ziel": [
+    233.71,
+    137.26
+   ],
+   "hebel_x": 233.71,
+   "gassen": [
+    "G5",
+    "G8",
+    "G7",
+    "G6"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "H4": {
+   "ziel": [
+    233.71,
+    92.78
+   ],
+   "hebel_x": 233.71,
+   "gassen": [
+    "G4",
+    "G3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H5": {
+   "ziel": [
+    125.71,
+    137.26
+   ],
+   "hebel_x": 125.71,
+   "gassen": [
+    "G8",
+    "G7",
+    "G6",
+    "G5"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "H6": {
+   "ziel": [
+    179.71,
+    137.26
+   ],
+   "hebel_x": 179.71,
+   "gassen": [
+    "G8",
+    "G7",
+    "G6",
+    "G5"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "H7": {
+   "ziel": [
+    125.71,
+    92.78
+   ],
+   "hebel_x": 125.71,
+   "gassen": [
+    "G3",
+    "G4"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H8": {
+   "ziel": [
+    179.71,
+    92.78
+   ],
+   "hebel_x": 179.71,
+   "gassen": [
+    "G3",
+    "G4"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "H9": {
+   "ziel": [
+    287.71,
+    137.26
+   ],
+   "hebel_x": 287.71,
+   "gassen": [
+    "G7",
+    "G8",
+    "G6",
+    "G5"
+   ],
+   "art": "Grundbass vorne"
+  },
+  "H10": {
+   "ziel": [
+    287.71,
+    92.78
+   ],
+   "hebel_x": 287.71,
+   "gassen": [
+    "G4",
+    "G3"
+   ],
+   "art": "Grundbass hinten"
+  },
+  "B1": {
+   "ziel": [
+    64.21,
+    46.55
+   ],
+   "hebel_x": 64.21,
+   "gassen": [
+    "G2",
+    "G1"
+   ],
+   "art": "Begleiter links"
+  },
+  "B2": {
+   "ziel": [
+    98.21,
+    46.55
+   ],
+   "hebel_x": 98.21,
+   "gassen": [
+    "G1",
+    "G2"
+   ],
+   "art": "Begleiter links"
+  },
+  "B3": {
+   "ziel": [
+    132.21,
+    46.55
+   ],
+   "hebel_x": 147.0,
+   "gassen": [
+    "G2"
+   ],
+   "art": "Begleiter links"
+  },
+  "B4": {
+   "ziel": [
+    166.21,
+    46.55
+   ],
+   "hebel_x": 166.21,
+   "gassen": [
+    "G1",
+    "G2"
+   ],
+   "art": "Begleiter links"
+  },
+  "B5": {
+   "ziel": [
+    200.21,
+    46.55
+   ],
+   "hebel_x": 200.21,
+   "gassen": [
+    "G2",
+    "G1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B6": {
+   "ziel": [
+    234.21,
+    46.55
+   ],
+   "hebel_x": 234.21,
+   "gassen": [
+    "G1",
+    "G2"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B7": {
+   "ziel": [
+    268.21,
+    46.55
+   ],
+   "hebel_x": 268.21,
+   "gassen": [
+    "G2",
+    "G1"
+   ],
+   "art": "Begleiter rechts"
+  },
+  "B8": {
+   "ziel": [
+    302.21,
+    46.55
+   ],
+   "hebel_x": 302.21,
+   "gassen": [
+    "G1",
+    "G2"
+   ],
+   "art": "Begleiter rechts"
+  }
+ },
+ "standard": {
+  "1.1": "H2",
+  "1.2": "H1",
+  "1.3": "B1",
+  "1.4": "H5",
+  "1.5": "B3",
+  "1.6": "H6",
+  "1.7": "B5",
+  "1.8": "H3",
+  "1.9": "B7",
+  "1.10": "H4",
+  "1.11": "H10",
+  "2.1": "H3",
+  "2.2": "H4",
+  "2.3": "B2",
+  "2.4": "H7",
+  "2.5": "B4",
+  "2.6": "H8",
+  "2.7": "B6",
+  "2.8": "H2",
+  "2.9": "B8",
+  "2.10": "H9"
+ }
+}

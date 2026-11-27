@@ -58,7 +58,7 @@
   <div>
     <div class="feld">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-        <label>Modell: <select id="modell"><option value="daten/belegung_modell_340.json">340 schmal leicht schräg</option></select></label>
+        <label>Modell: <select id="modell"><option value="daten/belegung_modell_340.json">340 schmal leicht schräg</option><option value="daten/belegung_modell_eduard.json">Eduard (Winkelbass)</option><option value="daten/belegung_modell_gerhard.json">Gerhard</option><option value="daten/belegung_modell_andreas.json">Andreas (Knopfzahl fest)</option><option value="daten/belegung_modell_marie38.json">Marie 38</option></select></label>
         <span>
           <span class="leg"><i style="background:var(--hb)"></i>Grundbass hinten</span>
           <span class="leg"><i style="background:var(--hbv)"></i>Grundbass vorne</span>
@@ -109,6 +109,23 @@ function knopfXY(r, i) { return [KX[r][i - 1], M.knopf_y[r]]; }
 //      dann das ganze Knopffeld auf die gezeichnete Mitte ----
 function knopfLagen() {
   const t0 = M.teilung, t = T === "standard" ? t0 : +T, rs = Object.keys(N).map(Number).sort();
+  KX = {}; BER_FEHLER = [];
+  const [bx0, bx1] = M.knopf_bereich || [-1e9, 1e9];
+  const pruefBer = () => rs.forEach(r => { if (KX[r].length && (KX[r][0] < bx0 || KX[r].at(-1) > bx1))
+    BER_FEHLER.push(`Reihe ${r}: ${N[r]} Knöpfe mit ${t} mm Teilung reichen von X ${KX[r][0].toFixed(0)} bis ${KX[r].at(-1).toFixed(0)} – an der Front ist nur Platz von ${bx0} bis ${bx1}`); });
+  if (M.knopf_x) {                                   // Knopflagen wie gebaut (27.11.2026, alle Bassteile)
+    const geb = {}; for (const r in M.knopf_x) geb[+r] = M.knopf_x[r];
+    if (rs.every(r => (geb[r] || []).length === N[r])) {
+      const alle = Object.values(geb).flat(), c = (Math.min(...alle) + Math.max(...alle)) / 2;
+      rs.forEach(r => KX[r] = geb[r].map(x => +(c + (x - c) * t / t0).toFixed(2))); pruefBer(); return;
+    }
+    if (M.reihen_fest) { rs.forEach(r => KX[r] = Array.from({ length: N[r] }, (_, i) => (geb[r] || [0])[0] + i * t));
+      BER_FEHLER.push("Bei diesem Bassteil ist die Knopfzahl je Reihe fest: " + Object.entries(M.reihen).map(([r, n]) => `R${r} = ${n}`).join(", ")); return; }
+  }
+  if (M.reihen_zentriert) {                          // jede Reihe mittig um die gemeinsame Mitte
+    const ms = Object.values(M.reihen_mitte), c = ms.reduce((a, b) => a + b, 0) / ms.length;
+    rs.forEach(r => KX[r] = Array.from({ length: N[r] }, (_, i) => +(c + (i - (N[r] - 1) / 2) * t).toFixed(2))); pruefBer(); return;
+  }
   const mi = {}; rs.forEach(r => mi[r] = M.reihen_mitte[r]);
   const c = (Math.min(...Object.values(mi)) + Math.max(...Object.values(mi))) / 2, o = {};
   rs.forEach(r => o[r] = (mi[r] - c) * t / t0);
@@ -128,7 +145,6 @@ function knopfLagen() {
     for (let k0 = -N[rs[j]] - 1; k0 <= 1; k0++) probier(j + 1, wahl.concat([k0]));
   };
   probier(0, []);
-  KX = {}; BER_FEHLER = [];
   const [x0, x1] = M.knopf_bereich || [-1e9, 1e9];
   rs.forEach(r => { KX[r] = best.lagen[r].map(x => +(c + x - best.mitte).toFixed(2));
     if (KX[r].length && (KX[r][0] < x0 || KX[r].at(-1) > x1))
@@ -141,7 +157,7 @@ function reihenWahl() {
     g.innerHTML = `Reihe ${r}: <button data-a="-l" title="linken Knopf entfernen">− links</button><button data-a="+l" title="links einen Knopf dazu">+ links</button>`
       + `<b class="n">${N[r]}</b><button data-a="+r" title="rechts einen Knopf dazu">+ rechts</button><button data-a="-r" title="rechten Knopf entfernen">− rechts</button>`
       + (N[r] !== M.reihen[r] ? ` <small class="hinweis">(gezeichnet ${M.reihen[r]})</small>` : "");
-    g.querySelectorAll("button").forEach(b => b.onclick = () => aendereReihe(+r, b.dataset.a));
+    g.querySelectorAll("button").forEach(b => { b.onclick = () => aendereReihe(+r, b.dataset.a); if (M.reihen_fest) b.disabled = true; });
     box.append(g);
   }
   const tg = document.createElement("label"); tg.className = "gr";
@@ -174,7 +190,9 @@ function pruefe() {
   const ber = n => { const xs = achsen[n].map(([r, i]) => KX[r][i - 1]).concat([kl[n].hebel_x]); return [Math.min(...xs), Math.max(...xs)]; };
   const folge = Object.keys(achsen).sort((a, b) => (kl[a].gassen.length - kl[b].gassen.length) || ((ber(a)[1] - ber(a)[0]) - (ber(b)[1] - ber(b)[0])));
   const L = M.min_luecke, belegt = {}, wahl = {}; let tief = [0, null];
-  const frei = (g, x0, x1) => !(belegt[g] || []).some(([a, b]) => !(x1 + L <= a || b + L <= x0));
+  const DY = M.gassen_abstand_min || 0;   // zu dicht liegende Gassen sind eine Spur
+  const nah = g => Object.keys(M.gassen).filter(h => Math.abs(M.gassen[h] - M.gassen[g]) < Math.max(DY, 1e-6));
+  const frei = (g, x0, x1) => !nah(g).some(h => (belegt[h] || []).some(([a, b]) => !(x1 + L <= a || b + L <= x0)));
   function suche(k) {
     if (k === folge.length) return true;
     const n = folge[k], [x0, x1] = ber(n);
@@ -261,7 +279,8 @@ document.getElementById("einlesen").onclick = () => {   // Kurzform zurueck ins 
     let m = t.match(/^R(\d+)\s*=\s*(\d+)$/i);
     if (m && neuN[m[1]] !== undefined) { neuN[m[1]] = +m[2]; continue; }
     m = t.match(/^(\d+)\.(\d+)\s*=\s*(\w+)$/);
-    if (m && M.klappen[m[3].toUpperCase()]) { neuZ[`${+m[1]}.${+m[2]}`] = m[3].toUpperCase(); continue; }
+    const kn = m && Object.keys(M.klappen).find(k => k.toUpperCase() === m[3].toUpperCase());   // Gross/Klein egal (Gerhard: Hd, B161k)
+    if (kn) { neuZ[`${+m[1]}.${+m[2]}`] = kn; continue; }
     falsch.push(t);
   }
   if (falsch.length) { document.getElementById("meldungen").innerHTML = `<li>Nicht verstanden: ${falsch.join(", ")}</li>`; return; }
@@ -275,6 +294,7 @@ document.getElementById("loesen").onclick = () => { if (gewaehlt) delete zuo[gew
 document.getElementById("kopieren").onclick = async () => { const t = document.getElementById("kurz"); t.select();
   try { await navigator.clipboard.writeText(t.value); } catch (e) { document.execCommand("copy"); } };
 document.getElementById("modell").onchange = e => lade(e.target.value);
+if (_q.get("modell")) { const o = [...document.getElementById("modell").options].find(o => o.value.includes("_" + _q.get("modell") + ".json")); if (o) document.getElementById("modell").value = o.value; }
 lade(document.getElementById("modell").value).then(() => { if (["18", "19", "20"].includes(_q.get("teilung"))) { T = _q.get("teilung"); aktualisiere(); } }).catch(e => { document.getElementById("status").textContent = "Modell konnte nicht geladen werden: " + e; });
 </script>
 </body>

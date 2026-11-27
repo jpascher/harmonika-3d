@@ -44,10 +44,18 @@ def main(liste, ordner, version="neu"):
     for f_ in (gs_step, gs_step + ".json"):
         if os.path.exists(f_): os.remove(f_)
     print("3) Alu-Abwicklungen, Holzteile, Kunststoffteil ...", flush=True)
-    env3 = dict(os.environ, ALU_ZUKAUF="1" if winkel else "")   # 27.11.2026: Winkel/Ital (3-mm-Achse): Alu-Hebel werden zugekauft
-    r3 = subprocess.run([sys.executable, "teile_dxf.py", dump, kst_step, teile_dir], cwd=hier, capture_output=True, text=True, env=env3)
-    open(os.path.join(ordner, "teile_dxf.log"), "w").write(r3.stdout + r3.stderr)
-    if r3.returncode != 0: raise SystemExit("teile_dxf-Fehler, siehe teile_dxf.log")
+    if not os.path.exists(dump):   # 27.11.: traditionell/kugellager (Holzhebel auf durchgehenden Achsen) liefern noch keine Teiledaten
+        os.makedirs(teile_dir, exist_ok=True)
+        open(os.path.join(teile_dir, "Hinweis_Hebel.txt"), "w", encoding="utf-8").write(
+            "Griffstock traditionell/kugellager: Holzhebel und Alu-Arme werden noch nicht automatisch abgewickelt.\n"
+            "Flache Teile stehen unter Fraesteile_2D, die Hebel sind im STEP-Modell enthalten.\n")
+        print("   Hinweis: traditionell/kugellager - Hebel-Abwicklungen folgen, siehe Teile/Hinweis_Hebel.txt", flush=True)
+        r3 = None
+    else:
+        env3 = dict(os.environ, ALU_ZUKAUF="1" if winkel else "")   # 27.11.2026: Winkel/Ital (3-mm-Achse): Alu-Hebel werden zugekauft
+        r3 = subprocess.run([sys.executable, "teile_dxf.py", dump, kst_step, teile_dir], cwd=hier, capture_output=True, text=True, env=env3)
+        open(os.path.join(ordner, "teile_dxf.log"), "w").write(r3.stdout + r3.stderr)
+        if r3.returncode != 0: raise SystemExit("teile_dxf-Fehler, siehe teile_dxf.log")
     for f_ in (dump, kst_step, kst_step.replace('.step', '_fertig.step')):
         if os.path.exists(f_): os.remove(f_)
     stoecke = sorted(os.path.basename(f)[:-5] for f in glob.glob(os.path.join(st_dir, "Stimmstock_*_fraesen.step")))

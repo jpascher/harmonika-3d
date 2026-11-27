@@ -41,7 +41,7 @@ body:
   - type: textarea
     id: belegung
     attributes:
-      label: "Bass: Belegung (nur v340)"
+      label: "Bass: Belegung (nicht beim Markus-Bass)"
       description: Kurzform von der Seite „Bassbelegung zuordnen“ einfügen (R1=/R2= Knopfzahl je Reihe, Knöpfe ohne Zuordnung bleiben blind); leer = wie gebaut
       placeholder: "R1=9, R2=9, 1.1=V077, 1.2=BL152, ..."
   - type: dropdown
