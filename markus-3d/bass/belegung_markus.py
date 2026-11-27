@@ -112,7 +112,7 @@ def exportiere(arm_info, zuordnung, kh_liste, kh_namen, kl_c, achsen, knoepfe, R
            "reihen_zentriert": False, "reihen_fest": True, "teilung": 20.0, "knopf_x": knopf_x,
            "knopf_bereich": [min(min(v) for v in knopf_x.values()), max(max(v) for v in knopf_x.values())],
            "reihen_hinweis": "Markus-Bass: Achsen, Boecke und Klappenhebel wie gezeichnet - frei ist, welcher Knopf welche Klappe oeffnet; Knopfzahl je Reihe fest",
-           "knopf_y": {str(REIHE_NR[r]): round(REIHEN[r][1], 2) for r in REIHE_NR},
+           "knopf_y": {"1": 198.0, "2": 184.0, "3": 170.0},          # nur fuer das Bild der Webseite (Reihen 14 mm auseinander)
            "gassen": gassen, "min_luecke": min_l, "gassen_abstand_min": 0.0,
            "klappen": klappen, "standard": standard}
     json.dump(mod, open(ex, "w", encoding="utf-8"), indent=1, ensure_ascii=False)

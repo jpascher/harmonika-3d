@@ -12,6 +12,7 @@
 #   Zuschnitt_Biegen.csv        je Draht: Nummer, Zuschnittlaenge, Biegungen (Lage ab Anfang, Winkel, Radius)
 import sys, os, re, math, argparse, csv
 import cadquery as cq, ezdxf
+from OCP.BRepAdaptor import BRepAdaptor_Surface
 from shapely.geometry import LineString, Point, box
 from shapely.ops import unary_union
 from shapely import affinity
@@ -41,10 +42,10 @@ def mittellinie(s, rdraht):
         g = f.geomType()
         if g == "PLANE": continue
         if g == "SPHERE":
-            if abs(f._geomAdaptor().Sphere().Radius() - rdraht) > 0.05: return None
+            if abs(BRepAdaptor_Surface(f.wrapped).Sphere().Radius() - rdraht) > 0.05: return None
             continue
         if g != "CYLINDER": return None
-        cy = f._geomAdaptor().Cylinder()
+        cy = BRepAdaptor_Surface(f.wrapped).Cylinder()          # 27.11.: auch getrimmte Flaechen (Helikon-Bass)
         if abs(cy.Radius() - rdraht) > 0.05: return None
         ax = cy.Axis(); o = ax.Location(); d = ax.Direction()
         O = cq.Vector(o.X(), o.Y(), o.Z()); D = cq.Vector(d.X(), d.Y(), d.Z())
@@ -192,7 +193,7 @@ def main():
             if ref is None: ref = q.normalized() if q.Length > 1e-6 else cq.Vector(0, 0, 1)
             seite = 1 if q.dot(ref) >= 0 else -1
             lang, kurz = (Lw - uw, uw) if (Lw - uw) >= uw else (uw, Lw - uw)
-            ue = a.uebermass if re.search(r"klappenhebel", wn, re.I) else 0.0   # freies Ende = Klappenmitte, dort Uebermass
+            ue = a.uebermass if re.search(r"klappenhebel|schenkel_klappe", wn, re.I) else 0.0   # freies Ende = Klappenmitte, dort Uebermass
             lang += ue; Lw += ue
             linien.append(LineString([(sa, -seite * kurz), (sa, seite * lang)]))
             # Biegemarken auf dem Arm (abgewickelte Lage ab dem Anfang, der hier am Ende 'kurz' liegt)

@@ -153,6 +153,8 @@ const BASS = [
   { id:"gerhard", name:"Gerhard",      text:"Drei Reihen, viele Bässe, versetzte und eine liegende Kammer.", teil:"20", belegung:true, l0:380, bmin:202 },
   { id:"andreas", name:"Andreas",      text:"Stockwerk nach Marie 38, 13 schmale Helikon, 400 mm.", teil:"19", belegung:true, l0:400, bmin:202.5 },
   { id:"v3",      name:"Variante 3 traditionell", text:"Markus-Gehäuse, flacher Einbau, Helikon 4/5, Knöpfe 9 + 8.", teil:"20", teil_fest:true, belegung:true, l0:380, bmin:203.5 },
+  { id:"helikon44", name:"Standard Helikon 4/4", text:"Standardmechanik, zwei Reihen 9 + 8, 4/4 Helikon, Begleiter am schrägen Brett.", teil:"20", l0:380, bmin:205 },
+  { id:"helikon45", name:"Standard Helikon 4/5", text:"Wie 4/4, dazu eine halbe Kammer vorne quer mit eigener Klappe.", teil:"20", l0:380, bmin:205 },
   { id:"v340",    name:"340 schmal",   text:"Kurzes Gehäuse, schräge Platten, abgesenkte Luftklappe. Knopfzahl je Reihe frei.", teil:"19", belegung:true, geprueft:["20"], l0:340, bmin:203 },
 ];
 const GRIFF = [
@@ -289,7 +291,7 @@ function zusammenfassung() {
 }
 function neu() {
   korrigiere();
-  karte($("teil"), [{ id:"bass", name:"Bassteil", text:"Sieben Modelle, Knopfteilung, Länge, freie Belegung." },
+  karte($("teil"), [{ id:"bass", name:"Bassteil", text:"Neun Modelle, Knopfteilung, Länge, freie Belegung." },
                     { id:"diskant", name:"Diskantteil", text:"Markus oder Marie, sieben Griffstöcke, Knopfzahl, Knopfabstand 18/19/20, Plattenlängen." }], "teil");
   $("s_bass").classList.toggle("verborgen", W.teil !== "bass"); $("s_diskant").classList.toggle("verborgen", W.teil !== "diskant");
   // Bass

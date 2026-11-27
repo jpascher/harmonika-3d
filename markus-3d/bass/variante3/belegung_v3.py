@@ -83,7 +83,7 @@ def _exportiere(ex, ach, knoepfe, kl_c, L, idx, standard):
            "reihen_zentriert": False, "reihen_fest": True, "teilung": 20.0, "knopf_x": knopf_x,
            "knopf_bereich": [min(min(v) for v in knopf_x.values()), max(max(v) for v in knopf_x.values())],
            "reihen_hinweis": "Variante 3: Knopfzahl je Reihe fest (9 / 8); die Achsen werden automatisch in Reihen hinter den Klappen gelegt",
-           "knopf_y": {"1": 206.5, "2": 213.5}, "gassen": gassen, "min_luecke": 15.0, "gassen_abstand_min": 0.0,
+           "knopf_y": {"1": 198.0, "2": 184.0}, "gassen": gassen, "min_luecke": 15.0, "gassen_abstand_min": 0.0,
            "klappen": klappen, "standard": standard}
     json.dump(mod, open(ex, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     print(f"Belegungsmodell geschrieben: {ex} ({len(klappen)} Klappen, {len(standard)} Knoepfe)")

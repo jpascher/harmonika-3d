@@ -17,9 +17,11 @@ HIER = os.path.dirname(os.path.abspath(__file__))
 M3D = os.path.dirname(HIER)
 BASS = {"markus": ("bass", None), "marie38": ("bass/marie38", "kammern38.py"), "eduard": ("bass/eduard", "eduard.py"),
         "gerhard": ("bass/gerhard", "gerhard.py"), "andreas": ("bass/andreas", "andreas.py"), "v340": ("bass/v340", "v340.py"),
-        "v3": ("bass/variante3", "v3_erzeuge.py")}
+        "v3": ("bass/variante3", "v3_erzeuge.py"), "helikon44": ("bass/kugellager", "helikon44.py"),
+        "helikon45": ("bass/kugellager", "helikon45.py")}
 
-NAMEN = {"marie38": "Marie38", "eduard": "Eduard", "gerhard": "Gerhard", "andreas": "Andreas", "v340": "340", "v3": "Variante3_traditionell"}
+NAMEN = {"marie38": "Marie38", "eduard": "Eduard", "gerhard": "Gerhard", "andreas": "Andreas", "v340": "340", "v3": "Variante3_traditionell",
+         "helikon44": "Standard_Helikon_4-4", "helikon45": "Standard_Helikon_4-5"}
 
 def lauf(cmd, cwd, log, env=None):
     t0 = time.time()

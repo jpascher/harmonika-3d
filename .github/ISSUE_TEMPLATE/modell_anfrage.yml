@@ -19,7 +19,7 @@ body:
     attributes:
       label: "Bass: Bassteil"
       description: Nur wenn Teil = bass
-      options: [markus, marie38, eduard, gerhard, andreas, v340, v3]
+      options: [markus, marie38, eduard, gerhard, andreas, v340, v3, helikon44, helikon45]
   - type: dropdown
     id: teilung
     attributes:

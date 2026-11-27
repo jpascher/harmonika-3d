@@ -20,7 +20,7 @@ on:
       bass_variante:
         description: "Bass: Bassteil"
         type: choice
-        options: [markus, marie38, eduard, gerhard, andreas, v340, v3]
+        options: [markus, marie38, eduard, gerhard, andreas, v340, v3, helikon44, helikon45]
         default: markus
       instrument:
         description: "Diskant: Instrument (Markus 3-choerig, Marie 2-choerig)"

@@ -45,8 +45,8 @@
  ],
  "reihen_hinweis": "Variante 3: Knopfzahl je Reihe fest (9 / 8); die Achsen werden automatisch in Reihen hinter den Klappen gelegt",
  "knopf_y": {
-  "1": 206.5,
-  "2": 213.5
+  "1": 198.0,
+  "2": 184.0
  },
  "gassen": {
   "HB0": 53.6,

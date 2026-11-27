@@ -55,9 +55,9 @@
  ],
  "reihen_hinweis": "Markus-Bass: Achsen, Boecke und Klappenhebel wie gezeichnet - frei ist, welcher Knopf welche Klappe oeffnet; Knopfzahl je Reihe fest",
  "knopf_y": {
-  "1": 206.5,
-  "2": 213.5,
-  "3": 220.5
+  "1": 198.0,
+  "2": 184.0,
+  "3": 170.0
  },
  "gassen": {
   "G1": 148.3,

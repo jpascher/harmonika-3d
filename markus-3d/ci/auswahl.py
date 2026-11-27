@@ -6,7 +6,7 @@ import os, re, sys, json, glob
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 M3D = os.path.dirname(HIER)
-LISTEN = {"teil": ["bass", "diskant"], "bass_variante": ["markus", "marie38", "eduard", "gerhard", "andreas", "v340", "v3"],
+LISTEN = {"teil": ["bass", "diskant"], "bass_variante": ["markus", "marie38", "eduard", "gerhard", "andreas", "v340", "v3", "helikon44", "helikon45"],
           "teilung": ["standard", "18", "19", "20"], "instrument": ["markus", "marie"],
           "griffstock": ["standard", "traditionell", "kugellager", "kolben", "kolben12", "winkel", "winkel_ital"],
           "knoepfe": ["50", "44", "46", "48", "52", "54"], "abstand": ["20", "19", "18"]}
@@ -46,14 +46,14 @@ def pruefe(w):
       except ValueError: raise ValueError(f"Gehäusebreite '{a['breite']}' ist keine Zahl")
       if not 200 <= b <= 215: raise ValueError(f"Gehäusebreite {b:g} mm außerhalb 200–215 mm")
       a["breite"] = f"{b:g}"
-    L0 = {"markus": 380, "marie38": 380, "eduard": 380, "gerhard": 380, "andreas": 400, "v340": 340, "v3": 380}   # gezeichnet (fertig)
+    L0 = {"markus": 380, "marie38": 380, "eduard": 380, "gerhard": 380, "andreas": 400, "v340": 340, "v3": 380, "helikon44": 380, "helikon45": 380}   # gezeichnet (fertig)
     if a["teil"] == "bass" and a["bass_variante"] == "v3" and a["teilung"] not in ("", "standard", "20"):
       raise ValueError("Variante 3 traditionell gibt es nur mit 20 mm Knopfteilung")
     if a["teil"] == "bass" and a["laenge"]:
       l0 = L0[a["bass_variante"]]
       if float(a["laenge"]) < l0 - 0.05: raise ValueError(f"Gehäuselänge {a['laenge']} mm: der Bass {a['bass_variante']} ist mindestens {l0} mm lang (kürzer geht nicht)")
       if float(a["laenge"]) > l0 + 150: raise ValueError(f"Gehäuselänge {a['laenge']} mm: höchstens {l0 + 150} mm")
-    BMIN = {"markus": 203.5, "marie38": 200, "eduard": 200.5, "gerhard": 202, "andreas": 202.5, "v340": 203, "v3": 203.5}   # gerechnet 27.11.
+    BMIN = {"markus": 203.5, "marie38": 200, "eduard": 200.5, "gerhard": 202, "andreas": 202.5, "v340": 203, "v3": 203.5, "helikon44": 205, "helikon45": 205}   # gerechnet 27.11.
     if a["teil"] == "bass" and a["breite"] and float(a["breite"]) < BMIN[a["bass_variante"]] - 0.01:
       raise ValueError(f"Gehäusebreite {a['breite']} mm: beim Bass {a['bass_variante']} geht schmäler nur bis {BMIN[a['bass_variante']]:g} mm, "
                        "ohne Stimmplatten, Kammern oder Mechanik zu beschneiden")
