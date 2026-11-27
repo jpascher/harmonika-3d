@@ -91,6 +91,18 @@ def alu_dxf(D, ordner):
             p = L_.centroid if not L_.is_empty else Point(0, 0)
             seite = ("zur Federseite (+X)" if wink > 0 else "von der Federseite weg (-X)") if art == "laengs" else ("Kroepfung " + ("hin" if wink > 0 else "zurueck"))
             msp.add_text(f"B{i+1}: {abs(wink):.1f} Grad {seite}", height=1.8, dxfattribs={"layer": "Text", "rotation": 90 if art == "laengs" else 0}).set_placement((p.x + 1.0, p.y))
+        # 27.11.2026: Biegemarken als Bohrungen und eingravierte Hebelnummer (Reihe-Hebel, z. B. 1-08)
+        import gravur, re as _re
+        doc.layers.add("Biegemarke_Bohrung_D1", color=4); doc.layers.add("Gravur_Nummer", color=6)
+        bl = [L_ for L_, _w, _a in linien if not L_.is_empty]
+        marken = gravur.biegemarken(flach, bl, 1.0)
+        for mx, my in marken: msp.add_circle((mx, my), 0.5, dxfattribs={"layer": "Biegemarke_Bohrung_D1"})
+        m_ = _re.match(r".*R(\d+)_(\d+)$", h["G"]); nummer = f"{m_.group(1)}-{m_.group(2)}" if m_ else h["G"]
+        sperr = unary_union([Point(loch).buffer(rb + 1.0)] + [L_.buffer(1.0) for L_ in bl] + [Point(q).buffer(1.2) for q in marken])
+        zuege, hg = gravur.platziere(flach, nummer, 2.5, 0.8, sperr)
+        if zuege:
+            for z_ in zuege: msp.add_lwpolyline(z_, dxfattribs={"layer": "Gravur_Nummer"})
+        else: print(f"  Achtung: Nummer {nummer} passt nicht auf {h['G']}")
         doc.saveas(os.path.join(ordner, f"{h['G']}_Alu_abgewickelt.dxf")); n += 1
     return n
 
@@ -200,10 +212,17 @@ def main(dump, kst_step, ordner):
     D = pickle.load(open(dump, "rb"))
     ad = os.path.join(ordner, "Alu_Hebel_abgewickelt"); os.makedirs(ad, exist_ok=True)
     hd = os.path.join(ordner, "Holzteile"); os.makedirs(hd, exist_ok=True)
-    print("Alu-Abwicklungen:", alu_dxf(D, ad))
-    import alu_verschachteln                                   # 27.11.2026: alle Alu-Hebel auf eine Fraesplatte
-    alu_verschachteln.main(ad, os.path.join(ordner, "Alu_Hebel_alle_verschachtelt.dxf"),
-                           float(os.environ.get("ALU_PLATTE_BREITE", "300")))
+    if os.environ.get("ALU_ZUKAUF"):                           # 27.11.2026: Ital-Mechanik mit 3-mm-Achse - Hebel zugekauft
+        os.rmdir(ad)
+        open(os.path.join(ordner, "Alu-Hebel_zugekauft.txt"), "w").write(
+            "Winkel-/Ital-Griffstock mit 3-mm-Achse: die Alu-Hebel werden zugekauft, daher keine Fraesdaten.\n")
+        print("Alu-Abwicklungen: keine (Hebel zugekauft)")
+    else:
+        print("Alu-Abwicklungen:", alu_dxf(D, ad))
+        import alu_verschachteln                               # 27.11.2026: alle Alu-Hebel auf Fraestafeln 300 x 600
+        alu_verschachteln.main(ad, os.path.join(ordner, "Alu_Hebel_alle_verschachtelt.dxf"),
+                               float(os.environ.get("ALU_PLATTE_BREITE", "300")), 2.0, 2.0,
+                               float(os.environ.get("ALU_PLATTE_HOEHE", "600")))
     print("Holzteile:", holz_dxf(D, hd))
     if os.path.exists(kst_step): print("Kunststoffteil:", kunststoff(kst_step, ordner, D["instrument"]))
     else: print("Kunststoffteil: keines (Winkel- bzw. Holzgriffstock)")   # 26.11.2026

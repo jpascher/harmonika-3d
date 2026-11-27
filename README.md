@@ -8,4 +8,4 @@ Die geprüften Modelle hängen als Dateien am Release [„Geprüfte Modelle“](
 
 Die Quellen stehen im Ordner `markus-3d`: `diskant/` und `bass/` mit den Generatoren je Modell, `ci/` mit der Automatik (Workflow `.github/workflows/harmonika_erzeugen.yml`, Gehäusemaße, Fräsdaten). Beschreibungen stehen in `markus-3d/README.md` und `markus-3d/ci/LIESMICH_Automatik.md`.
 
-Zeichnungen und Skripte stammen von Johann Pascher. Sie dürfen zum Nachbauen, Lernen und Weiterentwickeln frei verwendet werden; Ableitungen sollen ebenfalls frei bleiben.
+Alles ist Open Source und kann von jedem geklont werden (`git clone https://github.com/jpascher/harmonika-3d`). Programme, Skripte und Webseiten stehen unter der GNU General Public License Version 3 oder neuer (`LICENSE`), Zeichnungen, Modelle, Fräsdaten und Bilder unter Creative Commons BY-SA 4.0 (`LICENSE-Modelle-CC-BY-SA-4.0.txt`). Verwenden, nachbauen, ändern und weitergeben ist erlaubt, auch gewerblich, wenn der Urheber Johann Pascher genannt wird und geänderte Fassungen wieder unter derselben Lizenz frei bleiben.

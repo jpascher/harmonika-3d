@@ -1,5 +1,8 @@
 # Alle Alu-Hebel (Abwicklungen) gemeinsam auf eine Fraesplatte setzen (Johann 27.11.2026)
-#   python3 alu_verschachteln.py <ordner_mit_*_Alu_abgewickelt.dxf> <ausgabe.dxf> [plattenbreite_mm] [fraeser_mm] [steg_mm]
+#   python3 alu_verschachteln.py <ordner_mit_*_Alu_abgewickelt.dxf> <ausgabe.dxf> [breite_mm] [fraeser_mm] [steg_mm] [hoehe_mm]
+# Fraesbereich 300 x 600 mm (27.11.2026): passt nicht alles auf eine Tafel, entstehen weitere Tafeln
+# (<ausgabe>_Tafel2.dxf ...). Hebelnummern (Layer Gravur_Nummer) und Biegemarken-Bohrungen (Biegemarke_Bohrung_D1)
+# kommen aus den einzelnen Abwicklungen mit.
 # Regel: Schaftfraeser 2 mm, zwischen zwei Teilen bleiben mindestens 2 mm Material stehen -> Abstand der Konturen
 # = 2 x Fraeser + Steg (6 mm); zum Plattenrand Fraeser + Steg. Die Teile werden gedreht (0/90/180/270 Grad und die Lage
 # des kleinsten umschliessenden Rechtecks) und von unten links dicht gesetzt (Rasterverfahren 0,5 mm), damit die
@@ -24,10 +27,12 @@ def lies(pfad):
     aussen = max(ringe, key=lambda r: r.area)
     innen = [r for r in ringe if r is not aussen and aussen.contains(r.representative_point())]
     teil = Polygon(aussen.exterior.coords, [r.exterior.coords for r in innen]).buffer(0)
-    kreise = [(Point(c.dxf.center.x, c.dxf.center.y), c.dxf.radius) for c in m.query('CIRCLE')]
-    linien = [LineString([(l.dxf.start.x, l.dxf.start.y), (l.dxf.end.x, l.dxf.end.y)]) for l in m.query('LINE[layer=="Biegelinie"]')]
+    kreise = [(Point(c.dxf.center.x, c.dxf.center.y), c.dxf.radius, c.dxf.layer) for c in m.query('CIRCLE')]
+    linien = [(LineString([(l.dxf.start.x, l.dxf.start.y), (l.dxf.end.x, l.dxf.end.y)]), l.dxf.layer) for l in m.query('LINE')]
+    zuege = [(LineString([(p[0], p[1]) for p in e.get_points()]), e.dxf.layer, e.closed) for e in m.query('LWPOLYLINE')
+             if e.dxf.layer not in ("Kontur", "Text") and len(e) > 1]
     name = os.path.basename(pfad).replace("_Alu_abgewickelt.dxf", "")
-    return {"name": name, "teil": teil, "kreise": kreise, "linien": linien}
+    return {"name": name, "teil": teil, "kreise": kreise, "linien": linien, "zuege": zuege}
 
 def maske(poly, x0, y0, nx, ny):
     import shapely
@@ -35,11 +40,13 @@ def maske(poly, x0, y0, nx, ny):
     X, Y = np.meshgrid(xs, ys)
     return shapely.contains_xy(poly, X, Y)
 
-def verschachteln(teile, breite, abstand, rand, faktor=3.0, schritt=WINKELSCHRITT, regel="kontakt", ordnung=None):
+def verschachteln(teile, breite, abstand, rand, faktor=3.0, schritt=WINKELSCHRITT, regel="kontakt", ordnung=None, hoehe_max=None):
+    """Setzt die Teile; mit hoehe_max nur, was auf die Tafel passt. Rueckgabe: platz, hoehe, uebrig."""
     W = int(math.ceil((breite - 2 * rand) / RASTER))
-    H = int(math.ceil(sum(t["teil"].minimum_rotated_rectangle.buffer(abstand).area for t in teile) * faktor / (breite - 2 * rand) / RASTER)) + 400
+    if hoehe_max: H = int((hoehe_max - 2 * rand) / RASTER)
+    else: H = int(math.ceil(sum(t["teil"].minimum_rotated_rectangle.buffer(abstand).area for t in teile) * faktor / (breite - 2 * rand) / RASTER)) + 400
     belegt = np.zeros((H, W), dtype=np.float32)
-    platz = []; oben = 0
+    platz = []; oben = 0; uebrig = []
     for t in (ordnung or sorted(teile, key=lambda t: -t["teil"].minimum_rotated_rectangle.area)):
         rr = t["teil"].minimum_rotated_rectangle
         c = list(rr.exterior.coords)
@@ -57,8 +64,9 @@ def verschachteln(teile, breite, abstand, rand, faktor=3.0, schritt=WINKELSCHRIT
             m = maske(env, bx0, by0, nx, ny).astype(np.float32)
             if regel == "kontakt":
                 ring = maske(p.buffer(abstand / 2.0 + KONTAKT, join_style=1), bx0 - KONTAKT, by0 - KONTAKT, nx + 2 * int(KONTAKT / RASTER), ny + 2 * int(KONTAKT / RASTER)).astype(np.float32)
-            if oben + ny + 2 > H: continue
-            konf = fftconvolve(belegt[:oben + ny + 2], m[::-1, ::-1], mode="valid")          # Ueberlappung fuer jede Lage
+            if ny > H: continue
+            ausschnitt = belegt[:min(H, oben + ny + 2)]
+            konf = fftconvolve(ausschnitt, m[::-1, ::-1], mode="valid")          # Ueberlappung fuer jede Lage
             frei = np.argwhere(konf < 0.5)
             if not len(frei): continue
             if regel == "oben":
@@ -67,8 +75,8 @@ def verschachteln(teile, breite, abstand, rand, faktor=3.0, schritt=WINKELSCHRIT
             elif regel == "kontakt":
                 # an schon gesetzte Teile und den Plattenrand anschmiegen; wo die Platte nicht hoeher wird, zaehlt nur die Beruehrung
                 k = int(KONTAKT / RASTER)
-                umg = np.pad(np.minimum(belegt[:oben + ny + 2], 1.0), ((k, k), (k, k)), constant_values=1.0)
-                umg[-k:, :] = 0.0
+                umg = np.pad(np.minimum(ausschnitt, 1.0), ((k, k), (k, k)), constant_values=1.0)
+                if ausschnitt.shape[0] < H: umg[-k:, :] = 0.0
                 ber = fftconvolve(umg, ring[::-1, ::-1], mode="valid")[:konf.shape[0], :konf.shape[1]]
                 zuw = np.maximum(frei[:, 0] + ny - oben, 0) * RASTER
                 bew = zuw * 3.0 - ber[frei[:, 0], frei[:, 1]] * RASTER * RASTER / KONTAKT + frei[:, 0] * RASTER * 0.05
@@ -78,15 +86,18 @@ def verschachteln(teile, breite, abstand, rand, faktor=3.0, schritt=WINKELSCHRIT
                 iy, ix = min(frei.tolist(), key=lambda v: (v[0] + ny / 2, v[1]))  # Schwerpunkt moeglichst tief
                 wert = ((iy + ny / 2) * RASTER, ix * RASTER)
             if best is None or wert < best[0]: best = (wert, w, iy, ix, m, bx0, by0)
+        if best is None and hoehe_max:
+            uebrig.append(t); continue
         if best is None:
             if faktor < 20 and max(min(affinity.rotate(t["teil"], w, origin=(0, 0)).bounds[2] - affinity.rotate(t["teil"], w, origin=(0, 0)).bounds[0] for w in winkel) for _ in [0]) + abstand <= breite - 2 * rand:
-                return verschachteln(teile, breite, abstand, rand, faktor * 2, schritt, regel, ordnung)
+                return verschachteln(teile, breite, abstand, rand, faktor * 2, schritt, regel, ordnung, hoehe_max)
             raise SystemExit(f"{t['name']} passt nicht auf {breite} mm Breite")
         _, w, iy, ix, m, bx0, by0 = best
         belegt[iy:iy + m.shape[0], ix:ix + m.shape[1]] += m
         oben = max(oben, iy + m.shape[0])
         dx = rand + ix * RASTER - bx0; dy = rand + iy * RASTER - by0
         platz.append((t, w, dx, dy))
+    if not platz: return platz, 0.0, uebrig
     hoehe = max(affinity.translate(affinity.rotate(t["teil"], w, origin=(0, 0)), dx, dy).bounds[3] for t, w, dx, dy in platz) + rand
     # Kontrolle: echter Mindestabstand zwischen den Konturen und zum Rand
     pp = [affinity.translate(affinity.rotate(t["teil"], w, origin=(0, 0)), dx, dy) for t, w, dx, dy in platz]
@@ -98,41 +109,59 @@ def verschachteln(teile, breite, abstand, rand, faktor=3.0, schritt=WINKELSCHRIT
         b = q.bounds; dmin_r = min(b[0], breite - b[2], b[1])
         if dmin_r < rand - 1e-6: raise SystemExit(f"{t['name']}: Randabstand {dmin_r:.2f} mm zu klein")
     if dmin < abstand - 1e-6: raise SystemExit(f"Teileabstand {dmin:.2f} mm < {abstand} mm")
-    return platz, hoehe
+    return platz, hoehe, uebrig
 
-def schreibe(platz, breite, hoehe, ziel, fraeser, steg):
+def schreibe(platz, breite, hoehe, ziel, fraeser, steg, titel=""):
     d = ezdxf.new(setup=True); d.units = ezdxf.units.MM; m = d.modelspace()
-    for lay, col in (("Kontur", 7), ("Ausschnitt", 5), ("Bohrung_D6", 1), ("Biegelinie", 3), ("Text", 2), ("Platte", 8)): d.layers.add(lay, color=col)
+    for lay, col in (("Kontur", 7), ("Ausschnitt", 5), ("Text", 2), ("Platte", 8)): d.layers.add(lay, color=col)
     m.add_lwpolyline([(0, 0), (breite, 0), (breite, hoehe), (0, hoehe)], close=True, dxfattribs={"layer": "Platte"})
     tr = lambda g, w, dx, dy: affinity.translate(affinity.rotate(g, w, origin=(0, 0)), dx, dy)
+    def lay(n):
+        if n not in d.layers: d.layers.add(n)
+        return {"layer": n}
     for t, w, dx, dy in platz:
         p = tr(t["teil"], w, dx, dy)
         m.add_lwpolyline(list(p.exterior.coords), close=True, dxfattribs={"layer": "Kontur"})
         for i in p.interiors: m.add_lwpolyline(list(i.coords), close=True, dxfattribs={"layer": "Ausschnitt"})
-        for c, rad in t["kreise"]:
-            q = tr(c, w, dx, dy); m.add_circle((q.x, q.y), rad, dxfattribs={"layer": "Bohrung_D6"})
-        for l in t["linien"]:
-            q = tr(l, w, dx, dy); m.add_line(q.coords[0], q.coords[-1], dxfattribs={"layer": "Biegelinie"})
-        z = p.representative_point()
-        m.add_text(t["name"], height=2.0, dxfattribs={"layer": "Text", "rotation": 0}).set_placement((z.x, z.y))
-    m.add_text(f"Alu-Hebel {len(platz)} Stueck, Platte {breite:g} x {hoehe:.0f} mm, Fraeser {fraeser:g} mm, Steg {steg:g} mm, "
+        for c, rad, ln in t["kreise"]:
+            q = tr(c, w, dx, dy); m.add_circle((q.x, q.y), rad, dxfattribs=lay(ln))
+        for l, ln in t["linien"]:
+            q = tr(l, w, dx, dy); m.add_line(q.coords[0], q.coords[-1], dxfattribs=lay(ln))
+        for z, ln, zu in t["zuege"]:
+            q = tr(z, w, dx, dy); m.add_lwpolyline(list(q.coords), close=zu, dxfattribs=lay(ln))
+    m.add_text(f"Alu-Hebel {titel}{len(platz)} Stueck, Tafel {breite:g} x {hoehe:.0f} mm, Fraeser {fraeser:g} mm, Steg {steg:g} mm, "
                "nicht gespiegelt", height=3.0, dxfattribs={"layer": "Text"}).set_placement((0, hoehe + 4))
     d.saveas(ziel)
 
-def main(ordner, ziel, breite=300.0, fraeser=2.0, steg=2.0):
+def tafeln(teile, breite, hoehe, abstand, rand):
+    """Fuellt Tafel um Tafel (je Tafel beste von drei Reihenfolgen), bis alle Teile gesetzt sind."""
+    rest = list(teile); out = []
+    while rest:
+        ords = [sorted(rest, key=lambda t: -t["teil"].minimum_rotated_rectangle.area),
+                sorted(rest, key=lambda t: -t["teil"].convex_hull.area),
+                sorted(rest, key=lambda t: -t["teil"].area)]
+        erg = [verschachteln(rest, breite, abstand, rand, ordnung=o, hoehe_max=hoehe) for o in ords]
+        platz, h, uebrig = min(erg, key=lambda e: (len(e[2]), e[1]))      # moeglichst viele, dann niedrig
+        if not platz: raise SystemExit(f"{rest[0]['name']} passt auf keine Tafel {breite:g} x {hoehe:g} mm")
+        out.append((platz, h)); rest = uebrig
+    return out
+
+def main(ordner, ziel, breite=300.0, fraeser=2.0, steg=2.0, hoehe=600.0):
     teile = [lies(p) for p in sorted(glob.glob(os.path.join(ordner, "*_Alu_abgewickelt.dxf")))]
     if not teile: raise SystemExit("keine Alu-Abwicklungen gefunden")
     abstand = 2 * fraeser + steg; rand = fraeser + steg
-    ordnungen = [sorted(teile, key=lambda t: -t["teil"].minimum_rotated_rectangle.area),
-                 sorted(teile, key=lambda t: -t["teil"].convex_hull.area),
-                 sorted(teile, key=lambda t: -t["teil"].area)]
-    ergebnisse = [verschachteln(teile, float(breite), abstand, rand, ordnung=o) for o in ordnungen]
-    platz, hoehe = min(ergebnisse, key=lambda e: e[1])          # kuerzeste Platte gewinnt
-    schreibe(platz, float(breite), hoehe, ziel, fraeser, steg)
+    # Fraesbereich in beiden Lagen probieren (300 x 600 oder 600 x 300): weniger Tafeln, dann weniger Hoehe der letzten
+    lagen = [(float(breite), float(hoehe)), (float(hoehe), float(breite))]
+    loes = [(b, tafeln(teile, b, h, abstand, rand)) for b, h in lagen]
+    b, tf = min(loes, key=lambda e: (len(e[1]), e[1][-1][1]))
+    for i, (platz, h) in enumerate(tf):
+        z = ziel if i == 0 else ziel.replace(".dxf", f"_Tafel{i + 1}.dxf")
+        schreibe(platz, b, h, z, fraeser, steg, f"Tafel {i + 1}/{len(tf)}: " if len(tf) > 1 else "")
     flaeche = sum(t["teil"].area for t in teile)
-    print(f"Alu-Fraesplatte: {len(teile)} Hebel auf {float(breite):g} x {hoehe:.0f} mm, Nutzung {flaeche / (float(breite) * hoehe) * 100:.0f} %")
-    return hoehe
+    print(f"Alu-Fraesplatte: {len(teile)} Hebel auf {len(tf)} Tafel(n) im Bereich {breite:g} x {hoehe:g} mm, "
+          f"Nutzung {flaeche / sum(b * h for _, h in tf) * 100:.0f} %")
+    return len(tf)
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    main(a[0], a[1], *(float(x) for x in a[2:5]))
+    main(a[0], a[1], *(float(x) for x in a[2:6]))

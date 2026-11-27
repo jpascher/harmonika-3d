@@ -1,0 +1,124 @@
+# Alle Modelle neu rechnen und im Release "modelle" ablegen (27.11.2026)
+# Rechnet jede Diskant-Kombination aus docs/konfig_daten.json und die Bass-Varianten, je Modell
+# <Name>_step.zip, <Name>_Fraesdaten.zip und <Name>_vorschau.png. Vorhandene Dateien gleichen Namens werden ersetzt.
+name: Alle Modelle rechnen
+
+on:
+  workflow_dispatch:
+    inputs:
+      auswahl:
+        description: "alle | diskant | bass | Liste von Namen (Leerzeichen getrennt, z. B. Diskant_Markus_standard_50K_20mm)"
+        type: string
+        default: alle
+
+permissions:
+  contents: write
+
+jobs:
+  liste:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs
+      - name: Release anlegen, falls noch nicht da
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view modelle --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create modelle --repo "$GITHUB_REPOSITORY" --title "Alle Modelle" \
+              --notes "Alle Varianten, mit dem aktuellen Generator gerechnet. Je Modell: <Name>_step.zip (STEP-Modell), <Name>_Fraesdaten.zip (DXF fuer CamBam; Diskant zusaetzlich Fusion-Daten fuer Stimmstoecke und Griffstock, Alu-Hebel auf Fraestafeln 300 x 600 mit Nummern-Gravur und Biegemarken, Holzteile) und <Name>_vorschau.png. Lizenz: Modelle und Fraesdaten CC BY-SA 4.0. Uebersicht: https://jpascher.github.io/harmonika-3d/"
+      - id: m
+        env:
+          AUSWAHL: ${{ inputs.auswahl }}
+        run: |
+          python3 - <<'E'
+          import json, os
+          k = json.load(open("docs/konfig_daten.json"))
+          jobs = []
+          for key in sorted(k["laenge_diskant"]):
+              inst, gs, kn, ab = key.split(":")
+              jobs.append({"name": f"Diskant_{inst.capitalize()}_{gs}_{kn}K_{ab}mm", "teil": "diskant", "instrument": inst,
+                           "griffstock": gs, "knoepfe": kn, "abstand": ab, "bass_variante": "markus", "teilung": "standard", "laenge": ""})
+          for t in ("18", "19", "20"):
+              for l in ("380", "400", "410"):
+                  jobs.append({"name": f"Bass_Markus_T{t}_L{l}", "teil": "bass", "bass_variante": "markus", "teilung": t, "laenge": l,
+                               "instrument": "markus", "griffstock": "standard", "knoepfe": "50", "abstand": "20"})
+          for v in ("marie38", "eduard", "gerhard", "andreas", "v340"):
+              jobs.append({"name": f"Bass_{v.capitalize()}", "teil": "bass", "bass_variante": v, "teilung": "standard", "laenge": "",
+                           "instrument": "markus", "griffstock": "standard", "knoepfe": "50", "abstand": "20"})
+          a = os.environ["AUSWAHL"].split()
+          if a and a[0] in ("diskant", "bass"): jobs = [j for j in jobs if j["teil"] == a[0]]
+          elif a and a[0] != "alle": jobs = [j for j in jobs if j["name"] in a]
+          print(len(jobs), "Modelle")
+          open(os.environ["GITHUB_OUTPUT"], "a").write("matrix=" + json.dumps({"include": jobs}) + "\n")
+          E
+
+  rechnen:
+    needs: liste
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix: ${{ fromJSON(needs.liste.outputs.matrix) }}
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: markus-3d
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: markus-3d/ci/requirements.txt
+      - name: Systempakete
+        run: sudo apt-get update -q && sudo apt-get install -y -q xvfb libgl1 libglx-mesa0 libxrender1 zip
+      - name: Python-Pakete
+        run: pip install -q -r markus-3d/ci/requirements.txt
+      - name: Auswahl
+        id: p
+        env:
+          QUELLE: formular
+          IN_TEIL: ${{ matrix.teil }}
+          IN_BASS_VARIANTE: ${{ matrix.bass_variante }}
+          IN_TEILUNG: ${{ matrix.teilung }}
+          IN_LAENGE: ${{ matrix.laenge }}
+          IN_BREITE: ""
+          IN_INSTRUMENT: ${{ matrix.instrument }}
+          IN_GRIFFSTOCK: ${{ matrix.griffstock }}
+          IN_KNOEPFE: ${{ matrix.knoepfe }}
+          IN_ABSTAND: ${{ matrix.abstand }}
+          IN_PLATTEN: ""
+          IN_BELEGUNG: ""
+          IN_VORSCHAU: "true"
+        run: |
+          python3 markus-3d/ci/auswahl.py
+          grep -q "^ok=ja" "$GITHUB_OUTPUT" || { grep grund "$GITHUB_OUTPUT"; exit 1; }
+      - name: Modell rechnen
+        env:
+          PYVISTA_OFF_SCREEN: "true"
+          TEIL: ${{ steps.p.outputs.teil }}
+          VARIANTE: ${{ steps.p.outputs.variante }}
+          TEILUNG: ${{ steps.p.outputs.teilung }}
+          LAENGE: ${{ steps.p.outputs.laenge }}
+          BREITE: ""
+          VORSCHAU: "true"
+          PLATTEN: ""
+          BELEGUNG: ""
+        run: xvfb-run -a python3 markus-3d/ci/erzeuge_ci.py "$TEIL" "$VARIANTE" "$TEILUNG" "$LAENGE" ergebnis true
+      - name: Protokoll bei Fehler sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: protokoll-${{ matrix.name }}
+          path: ergebnis/protokoll.txt
+          if-no-files-found: ignore
+      - name: Umpacken und ins Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 markus-3d/ci/release_pakete.py ergebnis "${{ matrix.name }}" paket
+          gh release upload modelle paket/* --repo "$GITHUB_REPOSITORY" --clobber
