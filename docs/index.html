@@ -86,9 +86,9 @@ function mb(n){ return (n/1e6).toFixed(n > 1e7 ? 0 : 1) + " MB"; }
 fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`)
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
   .then(alle => {
-    // Fertige Modelle: Release "modelle" (alle Varianten), sonst "modelle-geprueft"; je Modell <Name>_step.zip,
+    // Fertige Modelle: Release "modelle" (alle Varianten); je Modell <Name>_step.zip,
     // <Name>_Fraesdaten.zip, optional <Name>_vorschau.png. Namen: Diskant_<Inst>_<griffstock>_<n>K_<a>mm, Bass_<Modell>[_T<t>_L<l>]
-    const gp = alle.find(r => r.tag_name === "modelle") || alle.find(r => r.tag_name === "modelle-geprueft");
+    const gp = alle.find(r => r.tag_name === "modelle");
     const gepr = document.getElementById("gepr");
     if (!gp) gepr.innerHTML = '<p class="hinweis">Noch keine Modelle hochgeladen.</p>';
     else {
