@@ -54,8 +54,17 @@
     <a class="knopf zweit" href="hilfe.html">Hilfe</a>
   </div>
 
-  <h2>Geprüfte Modelle</h2>
-  <p class="hinweis">Von Hand gebaut und geprüft. Herunterladen geht ohne Anmeldung: Modell als gepacktes STEP, Fräsdaten als ZIP mit allen 2D-Frästeilen als DXF für CamBam. Bei Diskantteil Markus v33 und Marie v16 sind zusätzlich die Fusion-CAM-Daten für Stimmstöcke und Griffstock, die Alu-Hebel (einzeln und gemeinsam auf einer Tafel) und die Holzteile dabei; für die anderen Diskant-Varianten gibt es diese vollständigen Fräsdaten, wenn man das Modell im Konfigurator rechnen lässt. Wie man die Dateien ansieht: <a href="hilfe.html#ansehen">Hilfe</a>.</p>
+  <h2>Fertige Modelle</h2>
+  <p class="hinweis">Alle Varianten, mit dem aktuellen Generator gerechnet. Herunterladen geht ohne Anmeldung: Modell als gepacktes STEP und Fräsdaten als ZIP – DXF für CamBam für alle 2D-Teile; beim Diskant dazu die Fusion-CAM-Daten für Stimmstöcke und Griffstock, die Alu-Hebel auf Frästafeln 300 × 600 mm mit Nummern-Gravur und Biegemarken (nicht beim Winkel-/Ital-Griffstock, dort werden die Hebel zugekauft) und die Holzteile; beim Bass dazu die Schweißschablone der Achsen. <b>geprüft</b> heißt: diese Ausführung wurde von Hand im 3D-Programm kontrolliert. Wie man die Dateien ansieht: <a href="hilfe.html#ansehen">Hilfe</a>.</p>
+  <div class="filter" style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.4rem 0 1rem;font-family:system-ui;font-size:.9rem">
+    <label>Teil <select id="f_teil"><option value="">alle</option><option>Diskant</option><option>Bass</option></select></label>
+    <label>Instrument <select id="f_inst"><option value="">alle</option></select></label>
+    <label>Griffstock <select id="f_gs"><option value="">alle</option></select></label>
+    <label>Knöpfe <select id="f_kn"><option value="">alle</option></select></label>
+    <label>Abstand/Teilung <select id="f_ab"><option value="">alle</option></select></label>
+    <label><input type="checkbox" id="f_gepr"> nur geprüfte</label>
+    <span id="f_zahl" class="hinweis"></span>
+  </div>
   <div id="gepr" class="raster"></div>
 
   <h2>Auf Anfrage gerechnete Modelle</h2>
@@ -77,10 +86,11 @@ function mb(n){ return (n/1e6).toFixed(n > 1e7 ? 0 : 1) + " MB"; }
 fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`)
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
   .then(alle => {
-    // Geprüfte Modelle: Release "modelle-geprueft", je Modell <Name>_step.zip, <Name>_Fraesdaten.zip, optional <Name>_vorschau.png
-    const gp = alle.find(r => r.tag_name === "modelle-geprueft");
+    // Fertige Modelle: Release "modelle" (alle Varianten), sonst "modelle-geprueft"; je Modell <Name>_step.zip,
+    // <Name>_Fraesdaten.zip, optional <Name>_vorschau.png. Namen: Diskant_<Inst>_<griffstock>_<n>K_<a>mm, Bass_<Modell>[_T<t>_L<l>]
+    const gp = alle.find(r => r.tag_name === "modelle") || alle.find(r => r.tag_name === "modelle-geprueft");
     const gepr = document.getElementById("gepr");
-    if (!gp) gepr.innerHTML = '<p class="hinweis">Noch keine geprüften Modelle hochgeladen.</p>';
+    if (!gp) gepr.innerHTML = '<p class="hinweis">Noch keine Modelle hochgeladen.</p>';
     else {
       const gruppen = {};
       for (const a of gp.assets) {
@@ -88,16 +98,43 @@ fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`)
         if (!m) continue;
         (gruppen[m[1]] = gruppen[m[1]] || {})[m[2]] = a;
       }
-      const namen = Object.keys(gruppen).sort((x, y) => (x.startsWith("Diskant") ? 0 : 1) - (y.startsWith("Diskant") ? 0 : 1) || x.localeCompare(y, "de"));
-      gepr.innerHTML = namen.map(n => {
-        const g = gruppen[n], bild = g["vorschau.png"];
-        const titel = n.replace(/_/g, " ");
-        const links = [["step.zip", "Modell (STEP-ZIP)"], ["Fraesdaten.zip", "Fräsdaten (ZIP)"]]
-          .filter(([k]) => g[k]).map(([k, t]) => `<a href="${g[k].browser_download_url}">${t} · ${mb(g[k].size)}</a>`).join("");
-        return `<div class="karte">
-          ${bild ? `<img src="${bild.browser_download_url}" alt="Vorschau ${esc(titel)}" loading="lazy">` : ''}
-          <div class="text"><h3>${esc(titel)}</h3><div class="dateien">${links}</div></div></div>`;
-      }).join("");
+      fetch("konfig_daten.json").then(r => r.json()).catch(() => ({})).then(kd => {
+        const gepSet = new Set(((kd.regeln || {}).geprueft) || []);
+        const GS = {standard: "Standard (Kunststoff)", traditionell: "Traditionell", kugellager: "Kugellager", kolben: "Kolben", kolben12: "Kolben 12", winkel: "Winkel", winkel_ital: "Winkel ital. Endform"};
+        const info = n => {
+          let m = n.match(/^Diskant_(\w+?)_(\w+?)_(\d+)K_(\d+)mm$/);
+          if (m) return {teil: "Diskant", inst: m[1], gs: m[2], kn: m[3], ab: m[4] + " mm",
+                          titel: `Diskant ${m[1]} · ${GS[m[2]] || m[2]} · ${m[3]} Knöpfe · Knopfabstand ${m[4]} mm`,
+                          gepr: gepSet.has(`${m[1].toLowerCase()}:${m[2]}:${m[4]}`)};
+          m = n.match(/^Bass_(\w+?)(?:_T(\d+)_L(\d+))?$/);
+          if (m) return {teil: "Bass", inst: m[1], gs: "", kn: "", ab: m[2] ? "Teilung " + m[2] : "",
+                         titel: `Bass ${m[1]}` + (m[2] ? ` · Teilung ${m[2]} mm · Länge ${m[3]} mm` : ""), gepr: !m[2] || (m[2] === "20" && m[3] === "380")};
+          return {teil: n.startsWith("Bass") ? "Bass" : "Diskant", inst: "", gs: "", kn: "", ab: "", titel: n.replace(/_/g, " "), gepr: true};
+        };
+        const namen = Object.keys(gruppen).sort((x, y) => (x.startsWith("Diskant") ? 0 : 1) - (y.startsWith("Diskant") ? 0 : 1) || x.localeCompare(y, "de", {numeric: true}));
+        const I = Object.fromEntries(namen.map(n => [n, info(n)]));
+        const fuell = (id, k) => { const sel = document.getElementById(id);
+          [...new Set(namen.map(n => I[n][k]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de", {numeric: true}))
+            .forEach(v => sel.insertAdjacentHTML("beforeend", `<option value="${esc(v)}">${esc(k === "gs" ? (GS[v] || v) : v)}</option>`)); };
+        fuell("f_inst", "inst"); fuell("f_gs", "gs"); fuell("f_kn", "kn"); fuell("f_ab", "ab");
+        const zeig = () => {
+          const f = id => document.getElementById(id).value;
+          const sicht = namen.filter(n => (!f("f_teil") || I[n].teil === f("f_teil")) && (!f("f_inst") || I[n].inst === f("f_inst"))
+            && (!f("f_gs") || I[n].gs === f("f_gs")) && (!f("f_kn") || I[n].kn === f("f_kn")) && (!f("f_ab") || I[n].ab === f("f_ab"))
+            && (!document.getElementById("f_gepr").checked || I[n].gepr));
+          document.getElementById("f_zahl").textContent = `${sicht.length} von ${namen.length} Modellen`;
+          gepr.innerHTML = sicht.map(n => {
+            const g = gruppen[n], bild = g["vorschau.png"];
+            const links = [["step.zip", "Modell (STEP-ZIP)"], ["Fraesdaten.zip", "Fräsdaten (ZIP)"]]
+              .filter(([k]) => g[k]).map(([k, t]) => `<a href="${g[k].browser_download_url}">${t} · ${mb(g[k].size)}</a>`).join("");
+            return `<div class="karte">
+              ${bild ? `<img src="${bild.browser_download_url}" alt="Vorschau ${esc(I[n].titel)}" loading="lazy">` : ''}
+              <div class="text"><h3>${esc(I[n].titel)}${I[n].gepr ? ' <span style="font-size:.75rem;background:#3F6B3A;color:#fff;border-radius:4px;padding:1px 5px">geprüft</span>' : ''}</h3><div class="dateien">${links}</div></div></div>`;
+          }).join("");
+        };
+        ["f_teil", "f_inst", "f_gs", "f_kn", "f_ab", "f_gepr"].forEach(id => document.getElementById(id).onchange = zeig);
+        zeig();
+      });
     }
     let rel = alle.filter(r => r.tag_name.startsWith("modell-"));
     if (!rel.length) { liste.innerHTML = '<p class="hinweis">Noch keine Modelle gerechnet.</p>'; return; }
