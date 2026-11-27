@@ -80,7 +80,9 @@ def main():
         name = os.path.basename(modell)[:-5]
         f2d = os.path.join(aus, "Fraesteile_2D")                 # 27.11.2026: alle 2D-Fraesteile als DXF fuer CamBam
         lauf([py, os.path.join(HIER, "platten_dxf.py"), modell, f2d, "--teil", "bass"], HIER, log)
-        extra = [p for p in glob.glob(os.path.join(f2d, "**", "*"), recursive=True) if os.path.isfile(p)]
+        # 27.11.2026: Achsen gestreckt mit Zuschnitt/Biegungen und Schweisslehre (Nuten zum Einlegen, Nummern-Gravur)
+        lauf([py, os.path.join(HIER, "achsen_lehre.py"), modell, os.path.join(aus, "Achsen_Schweisslehre")], HIER, log)
+        extra = [p for p in glob.glob(os.path.join(f2d, "**", "*"), recursive=True) + glob.glob(os.path.join(aus, "Achsen_Schweisslehre", "*")) if os.path.isfile(p)]
         packe(os.path.join(aus, name + "_step.zip"), [modell] + glob.glob(os.path.join(aus, "belegung.txt")) + glob.glob(os.path.join(aus, "masse.json")) + extra, aus)
     elif teil == "diskant":
         if ":" in variante:                                   # Auswahl der Webseite: instrument:griffstock:knoepfe:knopfabstand
@@ -115,7 +117,7 @@ def main():
                 f"STEP {groesse:.0f} MB, gepackt im ZIP. `vorschau.glb` (grob, mit Farben) und `vorschau.png` zur schnellen Kontrolle; "
                 f"`protokoll.txt` enthält die Ausgabe des Generators einschließlich Kollisionsprüfung.\n"
                 + "".join(f"\n> Hinweis: {h}" for h in hinweise))
-    for p in (modell, os.path.join(aus, "diskant_roh"), os.path.join(aus, "tastenliste.txt"), os.path.join(aus, "belegung.txt"), os.path.join(aus, "masse.json"), os.path.join(aus, "Fraesteile_2D")):          # nur die gepackten Dateien bleiben
+    for p in (modell, os.path.join(aus, "diskant_roh"), os.path.join(aus, "tastenliste.txt"), os.path.join(aus, "belegung.txt"), os.path.join(aus, "masse.json"), os.path.join(aus, "Fraesteile_2D"), os.path.join(aus, "Achsen_Schweisslehre")):          # nur die gepackten Dateien bleiben
         if os.path.isdir(p): shutil.rmtree(p)
         elif os.path.exists(p): os.remove(p)
     print("fertig:", sorted(os.listdir(aus)))
