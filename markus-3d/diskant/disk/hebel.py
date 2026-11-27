@@ -1306,18 +1306,21 @@ if not TRAD and not _WINKEL and os.environ.get("KST_STEP"):   # (Winkel: kein Ku
     for _nm, _so in (("", _fr), ("_fertig", _kf)):
         cq.exporters.export(_kst_lage(_so, _verschieb), os.environ["KST_STEP"].replace(".step", _nm + ".step"))
     print(f"Kunststoffteil in Fraeslage: {KST_X1 - KST_X0:.1f} x {_smax - _smin:.1f} x {_dmax:.1f} mm -> {os.environ['KST_STEP']}")
-if not TRAD and os.environ.get("TEILE_DUMP"):          # 19.11.: Daten fuer teile_dxf.py (Alu-Abwicklungen, Holzteile, Kunststoffteil)
-    import pickle as _pkd
+if os.environ.get("TEILE_DUMP"):          # 19.11.: Daten fuer teile_dxf.py (Alu-Abwicklungen, Holzteile, Kunststoffteil)
+    import pickle as _pkd                 # 27.11.: auch traditionell/kugellager (Alu aus trad.py/kugel.py, Holzhebel ueber Fraesteile_2D)
     _hd = []
-    for d_ in HEBEL_DATEN:
+    for d_ in (TRAD_ALU_DATEN if TRAD else HEBEL_DATEN):
         _pr = []
         for f_ in d_["hb"].Faces():
             try:
                 if abs(f_.normalAt().x) < 0.2: continue
                 _pr.append(_PG2([(v_.y, -v_.z) for v_ in (f_.outerWire().positionAt(k_ / 300) for k_ in range(301))]).buffer(0))
             except Exception: pass
-        _hd.append({k_: v_ for k_, v_ in d_.items() if k_ != "hb"} | {"proj": _juu(_pr).buffer(0.001).buffer(-0.001)})
-    _holz = {r_: (JP_HOLZ[r_] if JP else None) for r_ in (1, 2, 3, 4)}
+        _pj = _juu(_pr).buffer(0.001).buffer(-0.001)
+        if TRAD: _pj = _pj.buffer(1.0).buffer(-1.0)     # 27.11.: Stufen/Fugen zwischen Nabe und Arm schliessen (Fraeser 2 mm macht innen ohnehin R 1)
+        _hd.append({k_: v_ for k_, v_ in d_.items() if k_ != "hb"} | {"proj": _pj})
+        if os.environ.get("TEILE_BEHALTEN"): d_["hb"].exportBrep(os.environ["TEILE_DUMP"] + f".{d_['G']}.brep")
+    _holz = {r_: (JP_HOLZ[r_] if JP and not TRAD else None) for r_ in (1, 2, 3, 4)}
     _pkd.dump({"hebel": _hd, "holz": _holz, "kst_name": "Kunststoffteil_Lagerblock", "T_ALU": T_ALU, "T_HOLZ": T_HOLZ,
                "D_BUCHSE": D_BUCHSE, "KV_U": (KV_U0, KV_U1), "instrument": (INSTR["name"] if globals().get("INSTR") else "Markus")},
               open(os.environ["TEILE_DUMP"], "wb"))

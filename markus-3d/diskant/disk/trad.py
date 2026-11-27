@@ -117,6 +117,7 @@ NUT_B, NUT_T = 0.8, 0.6                                   # Nut in der Mitte jed
 AUS_ABST = 3.5                                            # Rechteckausschnitt Teil 2 bis 3,5 mm unter die Achse 3/4
 X_KR0, X_KR1 = P34.bounds[2] + 0.3, P34.bounds[2] - 5.2  # Kroepfzone Alu 1/2 (Zeichnung x), im Ausschnitt von Teil 2
 TRAD_HEBEL = []
+TRAD_ALU_DATEN = []                                       # 27.11.: fuer die Alu-Abwicklungen (teile_dxf.py)
 _TRAD_2D = {}
 KNOPF_VOR, KNOPF_VOR_R = {}, {}
 _sweep_holz, _sweep_alu = {}, {}
@@ -235,6 +236,11 @@ for n_, (r, x, k, kr) in enumerate(zuordnung):
     holz = holz.cut(prisma_uy(_pp(_Mpg(Ca.buffer(0.05))), xa, T_ALU + 0.1))     # 2-mm-Falz fuer das eingelassene Alu
     teile.append((f"{G}/Holzhebel", holz, f"Holz_R{r}"))
     teile.append((f"{G}/Hebel_Alu", alu, f"Alu_R{r}"))
+    # 27.11.: Daten fuer die Alu-Abwicklung (teile_dxf.py): Pfad (Y, X) = gerade bei xa, Kroepfung xa -> xt, dann der Arm
+    _apts = [(_Mpg(Ca).bounds[1] - 1.0, xa)]
+    if abs(xt - xa) > 1e-6 and _Ya < _Yb: _apts += [(_Ya, xa), (_Yb, xt)]
+    _apts += [p_ for p_ in ARM_PTS_LETZTE if p_[0] > _apts[-1][0] + 0.05]
+    TRAD_ALU_DATEN.append({"G": G, "r": r, "x": xa, "Yp": _M(ax_)[1], "up": _M(ax_)[0], "kv": 0.0, "pts": _apts, "hb": alu, "loch_d": 2.0})
     DREHPUNKTE[G] = (xk, _M(ax_)[1], -_M(ax_)[0])
     # Schwenkbereich fuer die Kammern (Ruhe bis gedrueckt, 0,3 Luft)
     _sh = _tuu([_rot(Lh, -th * i_ / 6.0, ax_) for i_ in range(7)]).buffer(0.3)

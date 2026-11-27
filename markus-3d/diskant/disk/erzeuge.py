@@ -57,7 +57,7 @@ def main(liste, ordner, version="neu"):
         open(os.path.join(ordner, "teile_dxf.log"), "w").write(r3.stdout + r3.stderr)
         if r3.returncode != 0: raise SystemExit("teile_dxf-Fehler, siehe teile_dxf.log")
     for f_ in (dump, kst_step, kst_step.replace('.step', '_fertig.step')):
-        if os.path.exists(f_): os.remove(f_)
+        if os.path.exists(f_) and not os.environ.get("TEILE_BEHALTEN"): os.remove(f_)
     stoecke = sorted(os.path.basename(f)[:-5] for f in glob.glob(os.path.join(st_dir, "Stimmstock_*_fraesen.step")))
     liste_ = {"name": name, "version": version, "erzeugt": datetime.datetime.now().isoformat(timespec="minutes"),
               "dokument": f"Stimmstoecke_{name}_Fraesen", "modell": os.path.basename(modell),

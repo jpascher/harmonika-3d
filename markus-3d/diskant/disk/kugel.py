@@ -299,6 +299,7 @@ X_TR0, X_TR1 = max(GS_X0 + 1.0, STUETZEN_X[0] - T_STU / 2 - 5.0), min(GS_X1 - 1.
 
 # --- Holzhebel, Lager, Achsen, Alu je Taste ---
 TRAD_HEBEL = []
+TRAD_ALU_DATEN = []                                       # 27.11.: fuer die Alu-Abwicklungen (teile_dxf.py)
 _TRAD_2D = {}
 _ACHSE = ACHSE_K
 _sweep_holz, _sweep_alu = {}, {}
@@ -408,6 +409,7 @@ for n_, (r, x, k, kr) in enumerate(zuordnung):
             alu = alu.cut(box(_bg.xmin + 2.5, _bg.xmax - 2.5, _bg.ymin - 0.2, _bg.ymax + 0.2, -(U_kl + 40.0), -(U_kl + 2.3)))
             break
     teile.append((f"{G}/Hebel_Alu", alu, f"Alu_R{r}"))
+    TRAD_ALU_DATEN.append({"G": G, "r": r, "x": xa, "Yp": _M(ax_)[1], "up": _M(ax_)[0], "kv": 0.0, "pts": list(_m), "hb": alu, "loch_d": D_LAGER})   # 27.11.: Abwicklung
     for i_, xl_ in enumerate((xk - B_LAGER / 2, xk + B_LAGER / 2)):          # zwei Kugellager 5x2x2 nebeneinander
         lg_ = _zyl_x(ax_, D_LAGER / 2, xl_ - B_LAGER / 2, xl_ + B_LAGER / 2).cut(_zyl_x(ax_, D_ACHSE_K / 2, xl_ - B_LAGER, xl_ + B_LAGER))
         teile.append((f"{G}/Kugellager{i_+1}", lg_, "Stahl"))

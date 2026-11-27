@@ -82,7 +82,9 @@ def alu_dxf(D, ordner):
         for lay, c in (("Kontur", 7), ("Bohrung_D6_Messingbuchse", 1), ("Biegelinie", 3), ("Text", 2)): doc.layers.add(lay, color=c)
         msp.add_lwpolyline(_poly_pts(flach), close=True, dxfattribs={"layer": "Kontur"})
         for inner in flach.interiors: msp.add_lwpolyline(list(inner.coords), close=True, dxfattribs={"layer": "Kontur"})
-        msp.add_circle(loch, rb, dxfattribs={"layer": "Bohrung_D6_Messingbuchse"})
+        rl = h.get("loch_d", 2 * rb) / 2                     # 27.11.: traditionell Ø2 (Achse), kugellager Ø5 (Lager)
+        if "loch_d" not in h or flach.contains(Point(loch).buffer(rl + 0.3)):   # trad: Alu reicht nicht bis zur Achse -> keine Bohrung
+            msp.add_circle(loch, rl, dxfattribs={"layer": "Bohrung_D6_Messingbuchse" if "loch_d" not in h else f"Bohrung_D{2 * rl:g}"})
         b = flach.bounds; ty = b[1] - 6
         msp.add_text(f"{h['G']} Alu {t:g} mm abgewickelt (k={K_FAKTOR:g}, Ri={R_INNEN:g})", height=2.5,
                      dxfattribs={"layer": "Text"}).set_placement((b[0], ty))
@@ -98,7 +100,7 @@ def alu_dxf(D, ordner):
         marken = gravur.biegemarken(flach, bl, 1.0)
         for mx, my in marken: msp.add_circle((mx, my), 0.5, dxfattribs={"layer": "Biegemarke_Bohrung_D1"})
         m_ = _re.match(r".*R(\d+)_(\d+)$", h["G"]); nummer = f"{m_.group(1)}-{m_.group(2)}" if m_ else h["G"]
-        sperr = unary_union([Point(loch).buffer(rb + 1.0)] + [L_.buffer(1.0) for L_ in bl] + [Point(q).buffer(1.2) for q in marken])
+        sperr = unary_union([Point(loch).buffer(rl + 1.0)] + [L_.buffer(1.0) for L_ in bl] + [Point(q).buffer(1.2) for q in marken])
         zuege, hg = gravur.platziere(flach, nummer, 2.5, 0.8, sperr)
         if zuege:
             for z_ in zuege: msp.add_lwpolyline(z_, dxfattribs={"layer": "Gravur_Nummer"})
