@@ -47,6 +47,7 @@ def analyse(secs, d_kanal=D_KANAL):
     xl = alle.intersection(sbox(X0 - 1, Y0 - 1, xm - 60, yb - 0.5)).bounds[2]          # Schenkel-Innenkanten
     xr = alle.intersection(sbox(xm + 60, Y0 - 1, X1 + 1, yb - 0.5)).bounds[0]
     innen = (xl, Y0 - D_FLAECHE, xr, yb)
+    if any(math.isnan(v) for v in innen) or xr - xl < 1.0: innen = None     # 27.11.: kein Innenraum (z. B. traditionell, hinten offen)
     roh = []
     for z in zs:
         s = secs[z]
@@ -75,7 +76,7 @@ def analyse(secs, d_kanal=D_KANAL):
         kan.append({"r": (x0, y0, x1, y1), "z0": min(r[0] for r in L) - DZ / 2, "z1": max(r[0] for r in L) + DZ / 2})
     s0 = secs[zs[0]]; da = None
     m0 = s0.intersection(sbox(xm - 60, Y0 - 1, xm + 60, Y1 + 1))
-    if not m0.is_empty and m0.bounds[1] > yb + 5:                 # unterste Schicht im Mittelbereich frei: Deckel-Ausnehmung
+    if innen and not m0.is_empty and m0.bounds[1] > yb + 5:                 # unterste Schicht im Mittelbereich frei: Deckel-Ausnehmung
         yd = m0.bounds[1]
         xdl = s0.intersection(sbox(X0 - 1, Y0 - 1, xm - 60, yd - 0.5)).bounds[2]
         xdr = s0.intersection(sbox(xm + 60, Y0 - 1, X1 + 1, yd - 0.5)).bounds[0]
@@ -161,7 +162,7 @@ def main(pfad, ordner, name):
         for g in (um.geoms if hasattr(um, "geoms") else [um]):
             msp.add_lwpolyline(list(g.exterior.coords), close=True, dxfattribs={"layer": "Umriss_nicht_fraesen"})
         dicke = bb.zmax - bb.zmin
-        rect(A["innen"], f"Innenraum_Rechteck_durch_T{dicke:.1f}_D{D_FLAECHE:g}")
+        if A["innen"]: rect(A["innen"], f"Innenraum_Rechteck_durch_T{dicke:.1f}_D{D_FLAECHE:g}")
         if A["deckel"]:     # Johann 19.11.: Deckel-Ausnehmung vollflaechig ausraeumen, ausser dem Innenraum (wird ohnehin ausgeschnitten)
             _ta = sbox(*A["deckel"]["r"]).difference(sbox(*A["innen"]))
             for g_ in (_ta.geoms if hasattr(_ta, "geoms") else [_ta]):
@@ -181,10 +182,10 @@ def main(pfad, ordner, name):
                 for r_ in g_["r"]: rect(r_, f"Flaeche_{seite_}_Z{g_['z']:.2f}_schlichten_T{SCHLICHT_T:g}_D{D_FLAECHE:g}")
         info["teile"][tn] = {"flaechen": {k_: [{"z": g_["z"], "r": [r2(r_) for r_ in g_["r"]], "tiefe": SCHLICHT_T} for g_ in v_] for k_, v_ in FL.items()},
                              "stufen_schlichten": [{"z": st_["z"], "r": r2(st_["r"]), "tiefe": SCHLICHT_T} for st_ in ST], "fraeser_kanal": dk, "dicke": round(dicke, 2), "laenge": round(bb.xlen, 2), "breite": round(bb.ylen, 2),
-                             "innenraum": r2(A["innen"]),
+                             "innenraum": r2(A["innen"]) if A["innen"] else None,
                              "deckel_ausnehmung": ({"r": r2(A["deckel"]["r"]), "tiefe": round(A["deckel"]["tiefe"], 2)} if A["deckel"] else None),
                              "kanaele": [{"r": r2(k_["r"]), "tiefe_von_oben": round(-k_["z0"], 2), "oben_bis": round(-k_["z1"], 2)} for k_ in A["kanaele"]]}
-        print(f"{tn}: Dicke {dicke:.1f}, Kanaele {len(A['kanaele'])}, Innenraum {r2(A['innen'])}, Deckel {info['teile'][tn]['deckel_ausnehmung']}")
+        print(f"{tn}: Dicke {dicke:.1f}, Kanaele {len(A['kanaele'])}, Innenraum {r2(A['innen']) if A['innen'] else '-'}, Deckel {info['teile'][tn]['deckel_ausnehmung']}")
     json.dump(info, open(os.path.join(ordner, f"Griffstock_{name}_fraesen.json"), "w"), indent=1)
 
 if __name__ == "__main__":
