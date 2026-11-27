@@ -80,6 +80,7 @@
   "G12": 115.5
  },
  "min_luecke": 9.5,
+ "gassen_abstand_min": 3.0,
  "klappen": {
   "B161k": {
    "ziel": [
@@ -91,7 +92,7 @@
     "G4",
     "G3"
    ],
-   "art": "Begleiter (Reihe Y 43)"
+   "art": "Begleiter links"
   },
   "B201b": {
    "ziel": [
@@ -105,7 +106,7 @@
     "G2",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter links"
   },
   "B241": {
    "ziel": [
@@ -119,7 +120,7 @@
     "G2",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter rechts"
   },
   "B291": {
    "ziel": [
@@ -133,7 +134,7 @@
     "G2",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter rechts"
   },
   "B131": {
    "ziel": [
@@ -147,7 +148,7 @@
     "G2",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter links"
   },
   "B201": {
    "ziel": [
@@ -161,7 +162,7 @@
     "G2",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter links"
   },
   "B251": {
    "ziel": [
@@ -173,7 +174,7 @@
     "G3",
     "G4"
    ],
-   "art": "Begleiter (Reihe Y 43)"
+   "art": "Begleiter rechts"
   },
   "B161": {
    "ziel": [
@@ -187,7 +188,7 @@
     "G3",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter links"
   },
   "B211": {
    "ziel": [
@@ -201,7 +202,7 @@
     "G3",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter rechts"
   },
   "B261": {
    "ziel": [
@@ -215,7 +216,7 @@
     "G3",
     "G1"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter rechts"
   },
   "B171": {
    "ziel": [
@@ -229,7 +230,7 @@
     "G3",
     "G2"
    ],
-   "art": "Grundbass (Reihe Y 43)"
+   "art": "Begleiter links"
   },
   "Hg": {
    "ziel": [
@@ -242,7 +243,7 @@
     "G7",
     "G6"
    ],
-   "art": "Begleiter (Reihe Y 87)"
+   "art": "Grundbass hinten"
   },
   "Hf": {
    "ziel": [
@@ -254,7 +255,7 @@
     "G5",
     "G8"
    ],
-   "art": "Grundbass (Reihe Y 87)"
+   "art": "Grundbass hinten"
   },
   "Hc": {
    "ziel": [
@@ -266,7 +267,7 @@
     "G5",
     "G8"
    ],
-   "art": "Grundbass (Reihe Y 87)"
+   "art": "Grundbass hinten"
   },
   "HA1": {
    "ziel": [
@@ -279,7 +280,7 @@
     "G7",
     "G5"
    ],
-   "art": "Begleiter (Reihe Y 87)"
+   "art": "Grundbass hinten"
   },
   "HA2": {
    "ziel": [
@@ -292,7 +293,7 @@
     "G6",
     "G5"
    ],
-   "art": "Begleiter (Reihe Y 87)"
+   "art": "Grundbass hinten"
   },
   "Hj": {
    "ziel": [
@@ -304,7 +305,7 @@
     "G8",
     "G5"
    ],
-   "art": "Grundbass (Reihe Y 87)"
+   "art": "Grundbass hinten"
   },
   "B12": {
    "ziel": [
@@ -315,7 +316,7 @@
    "gassen": [
     "G9"
    ],
-   "art": "Grundbass (Reihe Y 132)"
+   "art": "Begleiter links"
   },
   "Hl": {
    "ziel": [
@@ -328,7 +329,7 @@
     "G11",
     "G10"
    ],
-   "art": "Grundbass (Reihe Y 133)"
+   "art": "Grundbass vorne"
   },
   "He": {
    "ziel": [
@@ -341,7 +342,7 @@
     "G11",
     "G9"
    ],
-   "art": "Grundbass (Reihe Y 133)"
+   "art": "Grundbass vorne"
   },
   "Hi": {
    "ziel": [
@@ -354,7 +355,7 @@
     "G10",
     "G9"
    ],
-   "art": "Grundbass (Reihe Y 133)"
+   "art": "Grundbass vorne"
   },
   "Hd": {
    "ziel": [
@@ -366,7 +367,7 @@
     "G11",
     "G12"
    ],
-   "art": "Begleiter (Reihe Y 133)"
+   "art": "Grundbass vorne"
   },
   "Hk": {
    "ziel": [
@@ -379,7 +380,7 @@
     "G10",
     "G9"
    ],
-   "art": "Grundbass (Reihe Y 133)"
+   "art": "Grundbass vorne"
   },
   "Hh": {
    "ziel": [
@@ -391,7 +392,7 @@
     "G12",
     "G11"
    ],
-   "art": "Begleiter (Reihe Y 133)"
+   "art": "Grundbass vorne"
   }
  },
  "standard": {
