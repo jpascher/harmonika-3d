@@ -151,7 +151,8 @@ def main(ordner, ziel, breite=300.0, fraeser=2.0, steg=2.0, hoehe=600.0):
     if not teile: raise SystemExit("keine Alu-Abwicklungen gefunden")
     abstand = 2 * fraeser + steg; rand = fraeser + steg
     # Fraesbereich in beiden Lagen probieren (300 x 600 oder 600 x 300): weniger Tafeln, dann weniger Hoehe der letzten
-    lagen = [(float(breite), float(hoehe)), (float(hoehe), float(breite))]
+    # (gedreht ist es dieselbe Tafel; die Teile drehen sich ohnehin - eine Lage genuegt, die breite Seite waagrecht)
+    lagen = [(max(float(breite), float(hoehe)), min(float(breite), float(hoehe)))]
     loes = [(b, tafeln(teile, b, h, abstand, rand)) for b, h in lagen]
     b, tf = min(loes, key=lambda e: (len(e[1]), e[1][-1][1]))
     for i, (platz, h) in enumerate(tf):
