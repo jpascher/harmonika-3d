@@ -228,6 +228,11 @@ for n_, pts_ in _leisten.items():
 
 # ---------------- Stimmstoecke ----------------
 bl = [(x + BXO, y) for x, y, r in loecher]
+if SCHIEBER and INSTR is not None and INSTR["choerig"] == 3:
+    # Lage der Stimmstock-Zeichnungen weiter nach dem urspruenglichen Lochbild (rund, Paar +-6, Reihen +-6) suchen;
+    # die eckigen Schieber-Oeffnungen weichen davon bis 1 mm ab und wuerden die Passung verfaelschen
+    _L3 = {"unten": [(0, 8), (-6, -4), (6, -4)], "oben": [(0, -8), (-6, 4), (6, 4)]}
+    bl = [(k["x"] + a_, k["y"] + b_) for R_ in INSTR["reihen"].values() for k in R_["klappen"] for a_, b_ in _L3[k["lage"]]]
 # Stimmstock-Parameter (Plattenlaengen je Tripel und Regeln nach Jakob) aus stimmstock_parameter.txt
 # (Johann 18.11.2026: Plattenlaengen muessen per Variable festlegbar bleiben). Datei per STPARAM=... ueberschreibbar.
 def lies_stparam(pfad):
