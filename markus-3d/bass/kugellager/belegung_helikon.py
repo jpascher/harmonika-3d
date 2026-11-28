@@ -39,6 +39,17 @@ def anwenden(BASS, BEGL, KN_PX, XK, X, var45, Z_BASS, Z_BEGL, L):
     print("Belegung Helikon:", "; ".join(f"{p}{i}: " + " ".join(f"{r}.{KN_PX[r].index(px) + 1}" for r, px in t[0]) for p, i, t in _namen(nb, ng)))
     return nb, ng
 
+def _klappen_mass(X):
+    # Klappengroessen aus dem Grundriss (Layer HB-Klappe) fuer die Belegungsseite: [(x_mitte, b, h, begleiter)]
+    import ezdxf
+    hm = ezdxf.readfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kb_haupt.dxf")).modelspace(); out = set()
+    for e in hm.query('LWPOLYLINE[layer=="HB-Klappe"]'):
+        if not e.closed: continue
+        p = [(q.x, q.y) for q in ezdxf.path.make_path(e).flattening(0.1)]; xs = [a for a, _ in p]; ys = [b for _, b in p]
+        if -5 < min(xs) and max(xs) < 390 and 250 < min(ys) and max(ys) < 470:
+            out.add((X((min(xs) + max(xs)) / 2), round(max(xs) - min(xs), 1), round(max(ys) - min(ys), 1), min(ys) >= 390))
+    return sorted(out)
+
 def _exportiere(ex, BASS, BEGL, KN_PX, XK, X, var45, Z_BASS, Z_BEGL, L, std):
     knopf_x = {str(r): [round(XK(px), 2) for px in KN_PX[r]] for r in (1, 2)}
     gassen = {f"HB{j}": 40.0 + 6.0 * j for j in range(len(Z_BASS))}
@@ -48,6 +59,14 @@ def _exportiere(ex, BASS, BEGL, KN_PX, XK, X, var45, Z_BASS, Z_BEGL, L, std):
         klappen[f"{pre}{i}"] = {"ziel": [round(X(pxk), 2), 60.0 if pre == "H" else 130.0], "hebel_x": round(X(pxk), 2),
                                 "gassen": [g for g in gassen if g.startswith("HB" if pre == "H" else "BG")],
                                 "art": "Grundbass hinten" if pre == "H" else ("Begleiter links" if X(pxk) < L / 2 else "Begleiter rechts")}
+    try:
+        km = _klappen_mass(X)
+        for n, k in klappen.items():
+            kand = [m for m in km if m[3] == n.startswith("B")]
+            m = min(kand, key=lambda m: abs(m[0] - k["hebel_x"]))
+            if abs(m[0] - k["hebel_x"]) < 10: k["groesse"] = [m[1], m[2]]
+    except Exception as e_:
+        print("Klappengroessen nicht gelesen:", e_)
     if var45:
         x5 = round(XK(261.5), 2)
         gassen["Z5"] = 170.0

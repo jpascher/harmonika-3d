@@ -73,6 +73,9 @@ def _exportiere(ex, ach, knoepfe, kl_c, L, idx, standard):
         else: gs = ["Z0"]; gassen["Z0"] = 140.0
         k = {"ziel": [round(L - cx, 2), round(cy, 2)], "hebel_x": round(L - cx, 2), "gassen": gs,
              "art": ("Grundbass hinten" if a["art"] == "Bass" else "Begleiter " + ("links" if L - cx < L / 2 else "rechts") if a["art"] == "Begleiter" else "Grundbass vorne")}
+        w_, h_ = kl_c[a["kl"]][2], kl_c[a["kl"]][3]                # Klappengroesse fuer die Belegungsseite (schmale Bassklappen)
+        k["groesse"] = "rund" if a["art"] == "Begleiter" else [round(w_, 1), round(h_, 1)]
+        if a["art"] == "Begleiter": k["radius"] = round(w_ / 2, 1)
         if a["art"] == "Zusatz":                                 # Zusatzklappe: Stange im U ueber die Lufttaste, nur ihr Knopf
             xz = [knopf_x[s.split(".")[0]][int(s.split(".")[1]) - 1] for s, v in standard.items() if v == kid]
             k["x_bereich"] = [min(xz + [k["hebel_x"]]) - 1.0, max(xz + [k["hebel_x"]]) + 1.0]

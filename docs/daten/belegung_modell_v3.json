@@ -77,7 +77,11 @@
     "HB2",
     "HB3"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    45,
+    34
+   ]
   },
   "H7": {
    "ziel": [
@@ -91,7 +95,11 @@
     "HB2",
     "HB3"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    28,
+    36
+   ]
   },
   "H6": {
    "ziel": [
@@ -105,7 +113,11 @@
     "HB2",
     "HB3"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    45,
+    34
+   ]
   },
   "H5": {
    "ziel": [
@@ -119,7 +131,11 @@
     "HB2",
     "HB3"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    28,
+    36
+   ]
   },
   "H4": {
    "ziel": [
@@ -133,7 +149,11 @@
     "HB2",
     "HB3"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    45,
+    34
+   ]
   },
   "H3": {
    "ziel": [
@@ -144,7 +164,11 @@
    "gassen": [
     "SH3"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    28,
+    36
+   ]
   },
   "H2": {
    "ziel": [
@@ -155,7 +179,11 @@
    "gassen": [
     "SH2"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    28,
+    36
+   ]
   },
   "H1": {
    "ziel": [
@@ -166,7 +194,11 @@
    "gassen": [
     "SH1"
    ],
-   "art": "Grundbass hinten"
+   "art": "Grundbass hinten",
+   "groesse": [
+    45,
+    34
+   ]
   },
   "B8": {
    "ziel": [
@@ -180,7 +212,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter rechts"
+   "art": "Begleiter rechts",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B7": {
    "ziel": [
@@ -194,7 +228,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter rechts"
+   "art": "Begleiter rechts",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B6": {
    "ziel": [
@@ -208,7 +244,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter rechts"
+   "art": "Begleiter rechts",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B5": {
    "ziel": [
@@ -222,7 +260,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter rechts"
+   "art": "Begleiter rechts",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B4": {
    "ziel": [
@@ -236,7 +276,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter links"
+   "art": "Begleiter links",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B3": {
    "ziel": [
@@ -250,7 +292,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter links"
+   "art": "Begleiter links",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B2": {
    "ziel": [
@@ -264,7 +308,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter links"
+   "art": "Begleiter links",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "B1": {
    "ziel": [
@@ -278,7 +324,9 @@
     "BG2",
     "BG3"
    ],
-   "art": "Begleiter links"
+   "art": "Begleiter links",
+   "groesse": "rund",
+   "radius": 13.0
   },
   "Z": {
    "ziel": [
@@ -293,6 +341,10 @@
    "x_bereich": [
     88.0,
     112.0
+   ],
+   "groesse": [
+    36,
+    28
    ]
   }
  },
