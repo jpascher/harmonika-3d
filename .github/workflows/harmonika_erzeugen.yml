@@ -1,8 +1,9 @@
 # Harmonika-Modell auf GitHub rechnen lassen (Johann 26.11.2026)
 # Bedienung: github.com/jpascher/harmonika-3d -> Actions -> "Harmonika erzeugen" -> "Run workflow" -> Auswahl -> starten.
 # Ergebnis nach ca. 15-30 min unter "Releases" (feste Download-Links) und als Artefakt am Lauf.
-# Ohne Schreibrecht: Issue "Modell rechnen lassen" (Formular .github/ISSUE_TEMPLATE/modell_anfrage.yml). Anfragen des
-# Repo-Besitzers rechnen sofort, andere sobald der Besitzer das Etikett "freigegeben" setzt; Antwort mit Link im Issue.
+# Ohne Schreibrecht: Issue "Modell rechnen lassen" (Formular .github/ISSUE_TEMPLATE/modell_anfrage.yml). Seit 28.11.2026
+# rechnen Anfragen automatisch, sobald die Eingabepruefung besteht - hoechstens 3 je Person in 24 Stunden, weitere warten
+# auf das Etikett "freigegeben" vom Besitzer. Liegt genau diese Ausfuehrung schon vor, kommt sofort der Link statt eines Laufs.
 # Alle Eingaben werden zuerst von markus-3d/ci/auswahl.py gegen feste Listen geprueft.
 name: Harmonika erzeugen
 run-name: "${{ github.event_name == 'issues' && format('Anfrage #{0}: {1}', github.event.issue.number, github.event.issue.title) || (inputs.teil == 'bass' && format('Bass {0}, Teilung {1}{2}', inputs.bass_variante, inputs.teilung, inputs.belegung != '' && ', eigene Belegung' || '') || format('Diskant {0}, {1}, {2} Knoepfe, Knopfabstand {3} mm', inputs.instrument, inputs.griffstock, inputs.knoepfe, inputs.abstand)) }}"
@@ -80,7 +81,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (contains(github.event.issue.body, '### Teil') &&
-       ((github.event.action == 'opened' && github.event.issue.author_association == 'OWNER') ||
+       (github.event.action == 'opened' ||
         (github.event.action == 'labeled' && github.event.label.name == 'freigegeben')))
     runs-on: ubuntu-latest
     outputs:
@@ -95,12 +96,35 @@ jobs:
       platten: ${{ steps.p.outputs.platten }}
       belegung: ${{ steps.p.outputs.belegung }}
       titel: ${{ steps.p.outputs.titel }}
+      schon: ${{ steps.s.outputs.schon }}
     steps:
+      - name: Tageskontingent (3 Anfragen je Person in 24 Stunden, danach Freigabe durch den Besitzer)
+        id: k
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NR: ${{ github.event.issue.number }}
+          AUTOR: ${{ github.event.issue.user.login }}
+          ROLLE: ${{ github.event.issue.author_association }}
+          AKTION: ${{ github.event.action }}
+        run: |
+          weiter=ja
+          if [ "${{ github.event_name }}" = "issues" ] && [ "$AKTION" = "opened" ] && [ "$ROLLE" != "OWNER" ]; then
+            seit=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+            n=$(gh issue list --repo "$GITHUB_REPOSITORY" --author "$AUTOR" --state all --limit 50 --json number,createdAt,body \
+                --jq "[.[] | select(.createdAt >= \"$seit\" and .number != $NR and (.body | contains(\"### Teil\")))] | length")
+            if [ "$n" -ge 3 ]; then
+              weiter=nein
+              gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Danke für die Anfrage! Heute sind von dir schon $n Anfragen gerechnet worden – diese wird gerechnet, sobald sie freigegeben ist (Etikett „freigegeben“). Danach kommt das Ergebnis in etwa 15–30 Minuten hier als Antwort."
+            fi
+          fi
+          echo "weiter=$weiter" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
+        if: steps.k.outputs.weiter == 'ja'
         with:
           sparse-checkout: markus-3d
       - name: Auswahl pruefen
         id: p
+        if: steps.k.outputs.weiter == 'ja'
         env:
           QUELLE: ${{ github.event_name == 'issues' && 'issue' || 'formular' }}
           ISSUE_BODY: ${{ github.event.issue.body }}
@@ -117,17 +141,40 @@ jobs:
           IN_BELEGUNG: ${{ inputs.belegung }}
           IN_VORSCHAU: ${{ inputs.vorschau }}
         run: python3 markus-3d/ci/auswahl.py
+      - name: Schon gerechnet?
+        id: s
+        if: steps.p.outputs.ok == 'ja'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SAMMEL: ${{ steps.p.outputs.sammel }}
+          TITEL: ${{ steps.p.outputs.titel }}
+          PLATTEN: ${{ steps.p.outputs.platten }}
+          BELEGUNG: ${{ steps.p.outputs.belegung }}
+        run: |
+          schon=""
+          if [ -n "$SAMMEL" ] && gh api --paginate "repos/$GITHUB_REPOSITORY/releases/$(gh api repos/$GITHUB_REPOSITORY/releases/tags/modelle --jq .id)/assets?per_page=100" --jq '.[].name' | grep -qx "${SAMMEL}_step.zip"; then
+            schon="${{ github.server_url }}/${{ github.repository }}/releases/download/modelle/${SAMMEL}_step.zip"
+          elif [ -z "$PLATTEN" ] && [ -z "$BELEGUNG" ]; then
+            tag=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName,name --jq ".[] | select(.name | startswith(\"$TITEL (Lauf\")) | .tagName" | head -1)
+            [ -n "$tag" ] && schon="${{ github.server_url }}/${{ github.repository }}/releases/tag/$tag"
+          fi
+          echo "schon=$schon" >> "$GITHUB_OUTPUT"
+          [ -n "$schon" ] && echo "Schon vorhanden: $schon" || echo "Neu zu rechnen"
       - name: Antwort an die Anfrage
-        if: github.event_name == 'issues'
+        if: github.event_name == 'issues' && steps.k.outputs.weiter == 'ja'
         env:
           GH_TOKEN: ${{ github.token }}
           OK: ${{ steps.p.outputs.ok }}
           GRUND: ${{ steps.p.outputs.grund }}
           TITEL: ${{ steps.p.outputs.titel }}
+          SCHON: ${{ steps.s.outputs.schon }}
           NR: ${{ github.event.issue.number }}
           LAUF: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if [ "$OK" = "ja" ]; then
+          if [ "$OK" = "ja" ] && [ -n "$SCHON" ]; then
+            gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Genau diese Ausführung (**$TITEL**) ist schon fertig gerechnet: $SCHON – alle Modelle auch auf https://jpascher.github.io/harmonika-3d/"
+            gh issue close "$NR" --repo "$GITHUB_REPOSITORY"
+          elif [ "$OK" = "ja" ]; then
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Angenommen: **$TITEL**. Die Rechnung läuft ([Fortschritt]($LAUF)); das Ergebnis kommt in etwa 15–30 Minuten hier als Antwort."
           else
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Diese Auswahl geht leider nicht: $GRUND. Bitte die Anfrage bearbeiten oder neu stellen (Hilfe: https://jpascher.github.io/harmonika-3d/hilfe.html)."
@@ -135,7 +182,7 @@ jobs:
 
   erzeugen:
     needs: auswahl
-    if: needs.auswahl.outputs.ok == 'ja'
+    if: needs.auswahl.outputs.ok == 'ja' && needs.auswahl.outputs.schon == ''
     runs-on: ubuntu-latest
     timeout-minutes: 150
     outputs:
@@ -196,7 +243,7 @@ jobs:
 
   antwort:
     needs: [auswahl, erzeugen]
-    if: always() && github.event_name == 'issues' && needs.auswahl.outputs.ok == 'ja'
+    if: always() && github.event_name == 'issues' && needs.auswahl.outputs.ok == 'ja' && needs.auswahl.outputs.schon == ''
     runs-on: ubuntu-latest
     steps:
       - name: Ergebnis melden
@@ -213,18 +260,6 @@ jobs:
           else
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Die Rechnung ist leider abgebrochen. Protokoll: $LAUF"
           fi
-
-  wartet:
-    if: >-
-      github.event_name == 'issues' && github.event.action == 'opened' &&
-      contains(github.event.issue.body, '### Teil') && github.event.issue.author_association != 'OWNER'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Eingang bestaetigen
-        env:
-          GH_TOKEN: ${{ github.token }}
-          NR: ${{ github.event.issue.number }}
-        run: gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Danke für die Anfrage! Sie wird gerechnet, sobald sie freigegeben ist (Etikett „freigegeben“). Danach kommt das Ergebnis in etwa 15–30 Minuten hier als Antwort."
 
   etiketten:
     if: github.event_name == 'workflow_dispatch'

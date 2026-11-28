@@ -83,6 +83,16 @@ def pruefe(w):
         a["titel"] = f'Bass {a["bass_variante"]}, Teilung {a["teilung"]}' + (", eigene Belegung" if a["belegung"] else "")
     if a["laenge"] or a["breite"]:
         a["titel"] += ", Gehaeuse" + (f' L {a["laenge"]}' if a["laenge"] else "") + (f' B {a["breite"]}' if a["breite"] else "")
+    # 28.11.2026: Name im Sammel-Release "modelle", falls genau diese Ausfuehrung dort schon liegt (dann nicht neu rechnen)
+    a["sammel"] = ""
+    if a["teil"] == "diskant" and not (a["platten"] or a["laenge"] or a["breite"]):
+        a["sammel"] = f'Diskant_{a["instrument"].capitalize()}_{a["griffstock"]}_{a["knoepfe"]}K_{a["abstand"]}mm'
+    elif a["teil"] == "bass" and not (a["belegung"] or a["breite"]):
+        t_ = a["teilung"] if a["teilung"] not in ("", "standard") else ""
+        if a["bass_variante"] == "markus":
+            a["sammel"] = f'Bass_Markus_T{t_ or "20"}_L{a["laenge"] or "380"}'
+        elif not t_ and not a["laenge"]:
+            a["sammel"] = f'Bass_{a["bass_variante"].capitalize()}'
     return a
 
 def main():
@@ -95,7 +105,7 @@ def main():
         grund = " ".join(str(e).split())
         print("Auswahl ungueltig:", grund)
         out.write("ok=nein\n"); out.write(f"grund={grund}\n"); return
-    for k in ("teil", "variante", "teilung", "laenge", "breite", "vorschau", "platten", "belegung", "titel"):
+    for k in ("teil", "variante", "teilung", "laenge", "breite", "vorschau", "platten", "belegung", "titel", "sammel"):
         out.write(f"{k}={a[k]}\n")
     out.write("ok=ja\n")
     print("Auswahl:", json.dumps({k: a[k] for k in ("teil", "variante", "teilung", "laenge", "breite", "vorschau", "platten", "belegung")}, ensure_ascii=False))
