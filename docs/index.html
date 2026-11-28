@@ -96,6 +96,7 @@ fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`)
       for (const a of gp.assets) {
         const m = a.name.match(/^(.+?)_(step\.zip|Fraesdaten\.zip|vorschau\.png)$/);
         if (!m) continue;
+        if (/_winkel(_ital)?_\d+K_18mm$/.test(m[1])) continue;   // 28.11.2026: Winkel-Griffstock mit 18 mm nicht baubar
         (gruppen[m[1]] = gruppen[m[1]] || {})[m[2]] = a;
       }
       fetch("konfig_daten.json").then(r => r.json()).catch(() => ({})).then(kd => {

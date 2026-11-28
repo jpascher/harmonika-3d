@@ -256,6 +256,8 @@ function pruefung() {
   }
   { const mf = masseFehler(); if (mf) return ["nein", mf]; }
   for (const nr in W.platten) if (W.platten[nr].some(x => !(x >= R().platte_min && x <= R().platte_max))) return ["nein", `Plattenlängen Reihe ${nr}: Werte zwischen ${R().platte_min} und ${R().platte_max} mm.`];
+  if (["winkel", "winkel_ital"].includes(W.griffstock) && W.abstand === "18") return ["nein", "Winkel-Griffstock mit 18 mm Knopfabstand geht nicht: das Lager ist fest (50 Schlitze, 4,8 mm Teilung), die Hebel müssten vom Lager zum Knopf um etwa 58° gekröpft werden. Ginge nur mit schmäleren Laschen bzw. engerer Schlitzteilung oder kürzerem Winkel."];
+  if (["winkel", "winkel_ital"].includes(W.griffstock) && W.abstand === "19") return ["neu", "Winkel-Griffstock mit 19 mm: ungeprüft, die Kröpfung vom Lager zum Knopf ist kritisch (etwa 45°, seitlich bis 10 mm auf 10 mm Hebellänge). Rechnet, aber vor dem Bau genau ansehen."];
   if (NEU[`${W.instrument}:${W.griffstock}`]) return ["neu", "Markus mit Kolben-Griffstock ist neu (bisher nur Marie gerechnet) – Protokoll prüfen."];
   if (!geprueft(W.abstand)) return ["neu", `${W.instrument === "markus" ? "Markus" : "Marie"} ${W.griffstock} mit ${W.abstand} mm Knopfabstand rechnet, ist aber noch nicht angesehen – Protokoll und Bild prüfen.${W.instrument === "marie" ? " Bei Marie ändert sich die Klappenteilung mit." : ""}`];
   if (W.instrument === "markus" && W.knoepfe !== "50" && W.griffstock === "standard") return ["neu", `${W.knoepfe} Knöpfe mit Standard-Griffstock rechnet, ist aber noch nicht angesehen.`];
@@ -292,7 +294,7 @@ function zusammenfassung() {
 function neu() {
   korrigiere();
   karte($("teil"), [{ id:"bass", name:"Bassteil", text:"Neun Modelle, Knopfteilung, Länge, freie Belegung." },
-                    { id:"diskant", name:"Diskantteil", text:"Markus oder Marie, sieben Griffstöcke, Knopfzahl, Knopfabstand 18/19/20, Plattenlängen." }], "teil");
+                    { id:"diskant", name:"Diskantteil", text:"Markus oder Marie, sieben Griffstöcke, Knopfzahl, Knopfabstand 18/19/20 (Winkel nur 19/20), Plattenlängen." }], "teil");
   $("s_bass").classList.toggle("verborgen", W.teil !== "bass"); $("s_diskant").classList.toggle("verborgen", W.teil !== "diskant");
   // Bass
   karte($("bass"), BASS.map(b => ({ ...b, marke: b.belegung ? "freie Belegung" : "" })), "bass");
@@ -310,8 +312,10 @@ function neu() {
   chips($("knoepfe"), ["44", "46", "48", "50", "52", "54"], "knoepfe", knopfGrund);
   $("knoepfe_warum").textContent = W.instrument === "marie" ? "Marie wird mit ihrer gezeichneten Knopfzahl gerechnet." :
     ((R().knoepfe[W.griffstock] || [50]).length > 1 ? "Zusätzliche Knöpfe kommen auf die tiefe Seite; das Gehäuse passt sich an." : `Andere Knopfzahlen gibt es bisher nur mit Standard- und Winkel-Griffstock.`);
-  chips($("abstand"), D.regeln.abstaende.map(String).reverse(), "abstand", () => "", v => (geprueft(v) ? "mm" : "mm · neu") + (v === gezeichnet() ? " · gezeichnet" : ""));
-  $("abstand_warum").textContent = "Für alle Griffstöcke und beide Instrumente wählbar; die Hebelteilung ist die Hälfte. „neu“ = rechnet, wurde aber noch nicht angesehen."
+  const winkel = ["winkel", "winkel_ital"].includes(W.griffstock);   // 28.11.: Lagerbreite fest, Biegung Lager -> Knopf zu stark
+  chips($("abstand"), D.regeln.abstaende.map(String).reverse(), "abstand", v => winkel && v === "18" ? "beim Winkel-Griffstock nicht machbar: Kröpfung vom Lager zum Knopf zu stark" : "", v => (geprueft(v) ? "mm" : "mm · neu") + (v === gezeichnet() ? " · gezeichnet" : ""));
+  $("abstand_warum").textContent = (winkel ? "Beim Winkel-Griffstock ist das Lager fest (50 Schlitze, 4,8 mm Teilung): 20 mm passt, 19 mm nur mit Vorbehalt (Kröpfung Lager → Knopf etwa 45°), 18 mm geht nicht (etwa 58°)."
+      : "Für beide Instrumente wählbar (beim Winkel-Griffstock nur 20 mm, 19 mm mit Vorbehalt).") + " Die Hebelteilung ist die Hälfte. „neu“ = rechnet, wurde aber noch nicht angesehen."
     + (W.instrument === "marie" ? " Bei Marie (2-chörig) ist die Klappenteilung gleich dem Knopfabstand – das Gehäuse wird mit länger oder kürzer." : "");
   zeichnePlatten();
   $("laenge").value = W.laenge; $("breite").value = W.breite;

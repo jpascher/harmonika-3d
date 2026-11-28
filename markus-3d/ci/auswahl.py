@@ -63,6 +63,8 @@ def pruefe(w):
     sys.path.insert(0, HIER); sys.path.insert(0, os.path.join(M3D, "bass"))
     if a["teil"] == "diskant":
         import tastenliste_bauen as tb
+        if a["griffstock"].startswith("winkel") and a["abstand"] == "18":   # 28.11.2026 (Johann): Lager fest, Kroepfung ca. 58 Grad
+            raise ValueError("Winkel-Griffstock mit 18 mm Knopfabstand geht nicht (Lager fest: 50 Schlitze, 4,8 mm Teilung; Kröpfung Lager → Knopf etwa 58°)")
         tb.pruefe(a["instrument"], a["griffstock"], int(a["knoepfe"]), int(a["abstand"]))
         if a["platten"]: tb.lies_platten(a["platten"])
         if a["laenge"]:                                       # reicht die Laenge fuer Knopfzahl und Knopfabstand?

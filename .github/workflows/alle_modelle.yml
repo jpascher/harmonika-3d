@@ -40,6 +40,7 @@ jobs:
           jobs = []
           for key in sorted(k["laenge_diskant"]):
               inst, gs, kn, ab = key.split(":")
+              if gs.startswith("winkel") and ab == "18": continue      # 28.11.2026: Winkel mit 18 mm nicht baubar
               jobs.append({"name": f"Diskant_{inst.capitalize()}_{gs}_{kn}K_{ab}mm", "teil": "diskant", "instrument": inst,
                            "griffstock": gs, "knoepfe": kn, "abstand": ab, "bass_variante": "markus", "teilung": "standard", "laenge": ""})
           for t in ("18", "19", "20"):
