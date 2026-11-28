@@ -158,9 +158,12 @@ jobs:
           TITEL: ${{ steps.p.outputs.titel }}
           PLATTEN: ${{ steps.p.outputs.platten }}
           BELEGUNG: ${{ steps.p.outputs.belegung }}
+          SCHIEBER: ${{ steps.p.outputs.schieber }}
         run: |
           schon=""
-          if [ -n "$SAMMEL" ] && gh api --paginate "repos/$GITHUB_REPOSITORY/releases/$(gh api repos/$GITHUB_REPOSITORY/releases/tags/modelle --jq .id)/assets?per_page=100" --jq '.[].name' | grep -qx "${SAMMEL}_step.zip"; then
+          if [ -n "$SCHIEBER" ]; then
+            echo "Registerschieber (in Entwicklung): immer neu rechnen"
+          elif [ -n "$SAMMEL" ] && gh api --paginate "repos/$GITHUB_REPOSITORY/releases/$(gh api repos/$GITHUB_REPOSITORY/releases/tags/modelle --jq .id)/assets?per_page=100" --jq '.[].name' | grep -qx "${SAMMEL}_step.zip"; then
             schon="${{ github.server_url }}/${{ github.repository }}/releases/download/modelle/${SAMMEL}_step.zip"
           elif [ -z "$PLATTEN" ] && [ -z "$BELEGUNG" ]; then
             tag=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName,name --jq ".[] | select(.name | startswith(\"$TITEL (Lauf\")) | .tagName" | head -1)
