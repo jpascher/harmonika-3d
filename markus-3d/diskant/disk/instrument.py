@@ -40,6 +40,10 @@ KAMMER_3 = 8.75            # Kammerteilung im Trippel
 LOCH_3 = {"unten": [(0, 8), (-6, -4), (6, -4)],    # *U4
           "oben":  [(0, -8), (-6, 4), (6, 4)]}     # *U3
 LOCH_2 = [(0, 0), (0, 13)]                         # 2chor-klappe
+import os as _os
+if _os.environ.get("SCHIEBER") == "1":             # 28.11.2026 Registerschieber: eckige Oeffnungen 8 x 9,8, Paar +-5, Reihen +-6,5
+    LOCH_3 = {"unten": [(0, 8.5), (-5, -4.5), (5, -4.5)],
+              "oben":  [(0, -8.5), (-5, 4.5), (5, 4.5)]}
 KLAPPE_HALB = {3: 14.77, 2: 9.0}
 
 
@@ -176,6 +180,21 @@ def erzeuge(inst):
             print("WARNUNG: Klappen ragen ueber das Gehaeuse", xmin, xmax)
         if st_l is not None and st_l < ST_X: print("WARNUNG: Klappe links an der Verdeckstuetze")
         if st_r is not None and st_r > out["gehaeuse_x"] - ST_X: print("WARNUNG: Klappe rechts an der Verdeckstuetze")
+    # 28.11.2026 (Johann): Registerschieber - Klappen nicht mittig, sondern so, dass der Einbau moeglichst kurz wird:
+    # links (kleines X) die B-Laschen samt Weg, rechts die Endbloecke von A samt Weg, je 0,5 mm Luft zur Rahmen-Innenwand
+    if _os.environ.get("SCHIEBER") == "1" and ch == 3:
+        import registerschieber as _rs
+        RI_, LUFT_ = 4.5, 0.5                     # Rahmen-Innenkante ab Bodenkante (D_RAHMEN 5,5 - 1)
+        _x0, _x1 = _rs.bedarf(out)
+        _d = RI_ + LUFT_ - _x0
+        for R in out["reihen"].values():
+            for k in R["klappen"]: k["x"] += _d
+            for k in R["kammern"]: k["x"] += _d
+            R["loecher"] = [(x + _d, y) for x, y in R["loecher"]]
+            R["knoepfe"] = [x + _d for x in R["knoepfe"]]
+        out["verschub"] = out.get("verschub", 0.0) + _d
+        out["gehaeuse_x"] = round(_x1 + _d + LUFT_ + RI_ + 0.049, 1)
+        print("   Registerschieber: Klappen um %+.2f mm verschoben, Gehaeuse %.1f mm (kuerzester Einbau)" % (_d, out["gehaeuse_x"]))
     # 27.11.2026 (Johann): gemeinsames Aussenmass mit dem Bassteil - laengeres Gehaeuse durch Leerraum zwischen
     # Aussenwand und Einbau, je zur Haelfte an beiden Enden (gehaeuse_min = gewuenschte Laenge, fertig)
     _gmin = inst.get("gehaeuse_min")

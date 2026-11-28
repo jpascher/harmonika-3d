@@ -102,6 +102,11 @@ def main():
             liste = os.path.join(M3D, "diskant", "disk", f"tastenliste_{variante}.txt")
             if not os.path.exists(liste): raise SystemExit(f"Tastenliste fehlt: {liste}")
             hinweise = []
+        if os.environ.get("SCHIEBER") == "1":                  # 28.11.2026: Registerschieber -> eigener Modellname
+            import re as _re
+            _t = open(liste, encoding="utf-8").read()
+            _t = _re.sub(r"^(name\s*=\s*)(\S+)", lambda m: m.group(1) + m.group(2) + "_Registerschieber", _t, count=1, flags=_re.M)
+            liste = os.path.join(aus, "tastenliste_registerschieber.txt"); open(liste, "w", encoding="utf-8").write(_t)
         roh = os.path.join(aus, "diskant_roh")
         lauf([py, "erzeuge.py", liste, roh, "ci"], os.path.join(M3D, "diskant", "disk"), log)
         modell = glob.glob(os.path.join(roh, "Diskantteil_*_ci.step"))[0]

@@ -65,6 +65,11 @@ def vereinigt(liste):
     return c
 def bohrungen(punkte, d, z0, z1):
     return [cq.Workplane("XY").center(x, y).circle(d/2).extrude(z1-z0).translate((0, 0, z0)).val() for x, y in punkte]
+SCHIEBER = os.environ.get("SCHIEBER") == "1"     # 28.11.2026: Registerschieber (Doppelschieber A/B je Stimmstock, Epoxy 0,5)
+LO_B, LO_H = 8.0, 9.8                            # eckige Oeffnungen im Boden/Leder/Sohle (Block 3-chor eckig)
+def oeffnungen(punkte, z0, z1):
+    if not SCHIEBER: return bohrungen(punkte, 10.5, z0, z1)
+    return [box(x - LO_B/2, x + LO_B/2, y - LO_H/2, y + LO_H/2, z0, z1) for x, y in punkte]
 def schneide(s, werkzeuge):
     if not werkzeuge: return s
     return s.cut(cq.Compound.makeCompound(werkzeuge))
@@ -97,7 +102,7 @@ if os.environ.get("INSTRUMENT"):
     if abs(DL) > 1e-6: print(f"   Gehaeuse gestreckt: {L_GRUND} -> {L} mm (DL {DL:+.2f})")
 X_STRECK = float(INSTR.get("streck_x", L_GRUND / 2)) if INSTR else L_GRUND / 2   # Streckstelle (alte Koordinaten)
 boden = box(RI, L - RI, RI, B - RI, 0, T_BODEN)          # Boden liegt innerhalb des Rahmens (zwischen den Rahmenwaenden)
-werk = bohrungen([(x + BXO, y) for x, y, r in loecher], 10.5, -1, T_BODEN + 1)
+werk = oeffnungen([(x + BXO, y) for x, y, r in loecher], -1, T_BODEN + 1)
 ZWEI = INSTR is not None and INSTR["choerig"] == 2
 HF = INSTR["knopfabstand"] / 2 if ZWEI else 8.75     # halbe Feldteilung fuer Abstufungsbloecke (Markus 17,5, Marie 19)
 _bm2 = ezdxf.readfile(INSTR["boden_dxf"]).modelspace() if INSTR is not None and INSTR.get("boden_dxf") and os.path.exists(INSTR["boden_dxf"]) else None
@@ -113,7 +118,7 @@ for c, _ox in _gh:
 boden = schneide(boden, werk)
 teile.append(("Diskantboden", boden, "Holz"))
 leder = box(T_ZARGE, L - T_ZARGE, T_ZARGE, B - T_ZARGE, T_BODEN, Z_ST)
-leder = schneide(leder, bohrungen([(x + BXO, y) for x, y, r in loecher], 10.5, T_BODEN - 1, Z_ST + 1))
+leder = schneide(leder, oeffnungen([(x + BXO, y) for x, y, r in loecher], T_BODEN - 1, Z_ST + 1))
 # Verstaerkung innen im Griffstockbereich: 5-mm-Leiste auf dem Boden von der Frontwand bis zu den Stimmstocksohlen
 Y_VERST = 47.0
 leder = leder.cut(box(0, L, 0, Y_VERST, T_BODEN - 1, Z_ST + 1))
@@ -459,6 +464,9 @@ for f in dateien:
     else:
         X0, X1 = XW0 + B_LEISTE, XW1 - B_RASTE_O
         x_tw = max(x for x, h in felder_x) + 7.5 + T_TW
+    if SCHIEBER:      # ohne Stimmstockbefestigung: hohe Seite endet gleich nach der letzten Kammer, Platz fuer die Schieberbetaetigung
+        if tief_links: X1 = max(x for x, h in felder_x) + 7.5 + T_TW
+        else: X0 = min(x for x, h in felder_x) - 7.5 - T_TW
     SEITE_TIEF.append(tief_links)
     _kx0, _kx1 = min(x for x, h in felder_x) - 7.5, max(x for x, h in felder_x) + 7.5
     if _kx0 < X0 + 1.0 or _kx1 > X1 - 1.0:
@@ -466,7 +474,10 @@ for f in dateien:
         raise SystemExit(f"ABBRUCH {reihe}: Kammern X {_kx0:.1f}-{_kx1:.1f} passen nicht zwischen {X0:.1f} und {X1:.1f} "
                          f"(Gehaeuse um mind. {_fehl:.1f} mm zu kurz - Gehaeuse strecken oder Klappen verschieben)")
     sole = box(XW0 + B_RASTE_U if tief_links else X0, X1 if tief_links else XW1 - B_RASTE_U, Y0, Y1, zs, zs + T_SOLE)
-    sole = schneide(sole, bohrungen([tr(x, y) for x, y in sl], 10.5, zs - 1, zs + T_SOLE + 1))
+    sole = schneide(sole, oeffnungen([tr(x, y) for x, y in sl], zs - 1, zs + T_SOLE + 1))
+    if SCHIEBER:      # Tasche unten in der Sohle fuer die Registerschieber (0,5 + 0,1 Luft), ueber die ganze Laenge
+        _ys = sorted({round(tr(x, y)[1], 2) for x, y in sl}); _yl, _yh = _ys[0], _ys[-1]
+        sole = sole.cut(box(XW0 - 1, XW1 + 1, _yl - 8.0, _yh + 7.0, zs - 1, zs + 0.6))
     teile.append((f"Stimmstock_{reihe}_{ton}_Sohle", sole, "Holz"))
     # Vorderwand an der Sohlenkante, unter der die Loecher der vorderen Kammern liegen
     yv = [min(sl, key=lambda q: abs(q[0] - xm))[1] for xm in vorn] or [sy1]
@@ -570,16 +581,17 @@ for f in dateien:
     print(f"   Neigung {A:+.1f} Grad, Mitte Y {yc:.1f}, Seiten je {phi:.1f} Grad gegeneinander")
 
 # Rastleiste fuer die Nasen an der Wand der tiefen Seite (Trapez: unten 6, oben 4 breit, Hoehe = Sohle + Nase)
+if SCHIEBER: print("Registerschieber: Stimmstockbefestigung (Rastleiste, Schraubleiste, Verriegelung) vorerst weggelassen")
 _x0 = XW0 if all(SEITE_TIEF) else XW1
 _d = 1 if all(SEITE_TIEF) else -1
 _h = T_SOLE + H_NASE
 raste = (cq.Workplane("XZ").polyline([(_x0, Z_ST), (_x0 + _d * B_RASTE_U, Z_ST), (_x0 + _d * B_RASTE_O, Z_ST + _h), (_x0, Z_ST + _h)])
          .close().extrude(-(B - 2 * RI)).translate((0, RI, 0)).val())
-teile.append(("Rastleiste_Nasen", raste, "Holz"))
+if not SCHIEBER: teile.append(("Rastleiste_Nasen", raste, "Holz"))
 # Schraubleiste an der Wand der hohen Seite, etwas niedriger als die Stimmstock-Enden
 zl = min(Z_ENDE_HOCH) - 5.0
 xl0, xl1 = (XW1 - B_LEISTE, XW1) if all(SEITE_TIEF) else (XW0, XW0 + B_LEISTE)
-teile.append(("Schraubleiste_Stimmstoecke", box(xl0, xl1, RI, B - RI, Z_ST, zl), "Holz"))
+if not SCHIEBER: teile.append(("Schraubleiste_Stimmstoecke", box(xl0, xl1, RI, B - RI, Z_ST, zl), "Holz"))
 print(f"Schraubleiste X {xl0:.1f}-{xl1:.1f}, Oberkante Z {zl:.1f} (Stockenden min {min(Z_ENDE_HOCH):.1f}); tiefe Seite links: {SEITE_TIEF}")
 
 # Verriegelungsschieber nach Rigel.dxf (0-Eduard/Diskant/Stimmstoecke/Halter, 2 mm Blech, 45 x 9):
@@ -608,7 +620,7 @@ def schraube(x, y, z_auf, laenge, d_k, d_s=3.0, h_k=1.8):
     for dx, dy in ((d_k, 0.7), (0.7, d_k)):
         k = k.cut(box(x - dx / 2, x + dx / 2, y - dy / 2, y + dy / 2, z_auf + h_k - 1.0, z_auf + h_k + 1))
     return k.fuse(zyl_z(x, y, z_auf - laenge, z_auf, d_s))
-for reihe, yc_, A_, zb_, zt, xe, tl in STOCK_INFO:
+for reihe, yc_, A_, zb_, zt, xe, tl in ([] if SCHIEBER else STOCK_INFO):
     d = 1 if tl else -1                                   # Richtung zur Wand der hohen Seite
     yt = yc_ + (zt - zb_) * math.tan(math.radians(A_))    # Mitte der Stockoberkante
     xs_ = XW1 - 7.5 if tl else XW0 + 7.5                  # lange Rastschraube in der Schraubleiste
@@ -622,7 +634,11 @@ for reihe, yc_, A_, zb_, zt, xe, tl in STOCK_INFO:
     for i, u in enumerate((-30.0 + 3.5, -15.0 + 3.5)):    # verriegelt: Schrauben am hinteren Ende der Langloecher
         teile.append((f"Schraube_Schieber_{reihe}_{i+1}", neig(schraube(welt(u), yt, zt + T_SB, 12.0, 5.5)), "Schraube"))
     teile.append((f"Rastschraube_{reihe}", neig(schraube(xs_, yt, zt + T_SB + 0.2, zt + T_SB + 0.2 - zl + 12, 6.0)), "Schraube"))
-print("Schieber:", len(STOCK_INFO))
+print("Schieber:", 0 if SCHIEBER else len(STOCK_INFO))
+if SCHIEBER and INSTR is not None and INSTR["choerig"] == 3:
+    import registerschieber as _rs
+    for _n, _s in _rs.teile(INSTR, Z_ST, XW0, XW1, box):
+        teile.append((_n, _s, "Epoxy"))
 
 # ---------------- Verdeck (aussen, Z < 0) ----------------
 vm = ezdxf.readfile("verdeck.dxf").modelspace()
@@ -930,7 +946,7 @@ if os.environ.get("KOLLISION") == "1":
 
 # ---------------- Ausgabe ----------------
 farben = {"Einlage": cq.Color(0.12, 0.07, 0.04), "Holz": cq.Color(0.80, 0.62, 0.40), "Alu": cq.Color(0.78, 0.80, 0.83), "Verdeck": cq.Color(0.15, 0.15, 0.15),
-          "Leder": cq.Color(0.55, 0.30, 0.15), "Stahl": cq.Color(0.55, 0.57, 0.60), "Messing": cq.Color(0.85, 0.68, 0.25), "Schraube": cq.Color(0.80, 0.65, 0.20), "Klappe": cq.Color(0.30, 0.20, 0.12), "Hebelholz": cq.Color(0.70, 0.45, 0.25), "Kunststoff": cq.Color(0.92, 0.92, 0.88), "POM": cq.Color(0.96, 0.96, 0.94), "FR2": cq.Color(0.55, 0.62, 0.35), "Knopf": cq.Color(0.95, 0.93, 0.85), "Griffstock": cq.Color(0.45, 0.28, 0.15),
+          "Leder": cq.Color(0.55, 0.30, 0.15), "Epoxy": cq.Color(0.20, 0.45, 0.70), "Stahl": cq.Color(0.55, 0.57, 0.60), "Messing": cq.Color(0.85, 0.68, 0.25), "Schraube": cq.Color(0.80, 0.65, 0.20), "Klappe": cq.Color(0.30, 0.20, 0.12), "Hebelholz": cq.Color(0.70, 0.45, 0.25), "Kunststoff": cq.Color(0.92, 0.92, 0.88), "POM": cq.Color(0.96, 0.96, 0.94), "FR2": cq.Color(0.55, 0.62, 0.35), "Knopf": cq.Color(0.95, 0.93, 0.85), "Griffstock": cq.Color(0.45, 0.28, 0.15),
           # Hebel je Knopfreihe eigene Farbe (Alu kraeftig, Holzteil heller)
           "Alu_R1": cq.Color(0.85, 0.15, 0.15), "Holz_R1": cq.Color(0.95, 0.55, 0.55),
           "Alu_R2": cq.Color(0.15, 0.35, 0.90), "Holz_R2": cq.Color(0.55, 0.70, 0.98),
