@@ -17,13 +17,16 @@ from shapely.affinity import rotate as srot
 import registerschieber as rs
 
 FOLGE = [(0, 0), (1, 0), (1, 1), (0, 1), (0, 2), (1, 2)]      # (A-Index, B-Index) je Rast
-TH0, DTH, UEBER = -25.0, 10.0, 5.0                              # Hebelwinkel der ersten Rast, Rastabstand, Ueberweg
-I_KR = 5.0                                                      # Kegelrad : Ritzel
+TH0, DTH, UEBER = -25.0, 10.0, 3.0                              # Hebelwinkel der ersten Rast, Rastabstand, Ueberweg
+I_KR = 5.5                                                      # Kegelrad : Ritzel (28.11.: 5 -> 5,5, flachere Nuten)
 Z_W, Y_W = 31.5, 23.5                                           # Wellenhoehe, Walzenachse (Y)
-R_KR, R_RZ = 18.0, 3.6                                          # Teilkreise Kegelrad / Ritzel
+R_KR, R_RZ = 18.0, 18.0 / 5.5                                        # Teilkreise Kegelrad / Ritzel
 R_WZ, R_NUT, R_NUTB = 16.0, 15.5, 2.0                           # Walze, Nut-Mittellinie (Rohr), Rohrradius
 L_HEB, R_RAST = 80.0, 72.0                                      # Hebellaenge (Daumen), Radius der Rastkerben
-Y_HEB = (-22.5, -20.5); Y_RB = (-19.5, -17.4); Y_NABE = (-20.5, -1.2)
+Y_HEB = (-22.5, -20.5); Y_RB = (-19.5, -17.4)
+# 28.11. (Johann): Hebel gekroepft - oben liegt er am Rahmen an (0,5 Luft, Rahmen aussen Y -1), Kroepfung oberhalb
+# des Griffstocks (Z > 0 in allen Stellungen), unten wie bisher vor dem Rastblech; kurze Nabe statt langer Huelse
+Y_HEB_OBEN = (-3.0, -1.5); Y_NABE = (-6.0, -3.0); R_KROEPF = 26.0
 STANGE_Y, STANGE_Z = (22.0, 25.0), (11.5, 14.5)                 # Schubstangen (auf der Verstaerkungsleiste)
 KOPP_Z, KOPP_B = (11.5, 15.0), 4.0                              # Koppelstangen
 D_WELLE, D_ACHSE, D_STIFT = 5.0, 4.0, 2.4
@@ -31,6 +34,17 @@ D_WELLE, D_ACHSE, D_STIFT = 5.0, 4.0, 2.4
 
 def _glatt(t):
     return 0.5 - 0.5 * math.cos(math.pi * min(1.0, max(0.0, t)))
+
+
+RAND, RAMPE = 0.03, 0.12     # 28.11. (Johann, Variante 2): kurze Rast (3 % je Seite), dann gleichmaessige Rampe mit
+                             # weichem An-/Auslauf (12 %) statt Kosinus -> Nutsteigung ca. 38 statt 48 Grad
+
+
+def _rampe(t):
+    u = min(1.0, max(0.0, (t - RAND) / (1.0 - 2 * RAND))); v = 1.0 / (1.0 - RAMPE)
+    if u < RAMPE: return v * u * u / (2 * RAMPE)
+    if u > 1.0 - RAMPE: return 1.0 - v * (1.0 - u) ** 2 / (2 * RAMPE)
+    return v * (u - RAMPE / 2)
 
 
 def verlauf(G, th):
@@ -41,7 +55,7 @@ def verlauf(G, th):
     elif k >= len(FOLGE) - 1: i0, t = len(FOLGE) - 2, 1.0
     else: i0 = int(k); t = k - i0
     (a0, b0), (a1, b1) = FOLGE[i0], FOLGE[i0 + 1]
-    g = _glatt(t)
+    g = _rampe(t)
     return RA[a0] + (RA[a1] - RA[a0]) * g, RB[b0] + (RB[b1] - RB[b0]) * g
 
 
@@ -75,9 +89,12 @@ def teile(INSTR, L, RI, B, box):
 
     # ---- aussen: Hebel, Nabe, Rastblech
     th0 = rast[0]
-    heb = unary_union([Point(XM, Z_W).buffer(8.0), sbox(XM - 4.5, Z_W - L_HEB, XM + 4.5, Z_W), Point(XM, Z_W - L_HEB).buffer(9.0)])
-    heb = srot(heb, th0, origin=(XM, Z_W)).difference(Point(XM, Z_W).buffer(D_WELLE / 2 + 0.01))
-    s_heb = xz(heb, *Y_HEB)
+    k0, k1 = Z_W - R_KROEPF, Z_W - R_KROEPF - 2.0                  # Kroepfung (Steg quer zur Wand), 2 mm Blech
+    oben = unary_union([Point(XM, Z_W).buffer(8.0), sbox(XM - 4.5, k1, XM + 4.5, Z_W)])
+    oben = srot(oben, th0, origin=(XM, Z_W)).difference(Point(XM, Z_W).buffer(D_WELLE / 2 + 0.01))
+    steg = srot(sbox(XM - 4.5, k1, XM + 4.5, k0), th0, origin=(XM, Z_W))
+    unten = srot(unary_union([sbox(XM - 4.5, Z_W - L_HEB, XM + 4.5, k0), Point(XM, Z_W - L_HEB).buffer(9.0)]), th0, origin=(XM, Z_W))
+    s_heb = xz(oben, *Y_HEB_OBEN).fuse(xz(steg, Y_HEB[0], Y_HEB_OBEN[1])).fuse(xz(unten, *Y_HEB))
     px, pz = richt(th0, R_RAST)
     s_heb = s_heb.fuse(zyl(1.5, (px, Y_HEB[1] - 0.01, pz), (0, 1, 0), Y_RB[1] - 0.4 - Y_HEB[1]))     # Raststift
     out.append(("Registerhebel", s_heb, "Stahl"))
@@ -90,7 +107,7 @@ def teile(INSTR, L, RI, B, box):
     out.append(("Registerhebel_Rastblech", xz(ring, *Y_RB), "Stahl"))
 
     # ---- Welle mit Buchse durch die Rueckwand
-    out.append(("Registerhebel_Welle", zyl(D_WELLE / 2, (XM, Y_HEB[0], Z_W), (0, 1, 0), Y_W + R_RZ + 2.6 - Y_HEB[0]), "Stahl"))
+    out.append(("Registerhebel_Welle", zyl(D_WELLE / 2, (XM, Y_NABE[0], Z_W), (0, 1, 0), Y_W + R_RZ + 2.6 - Y_NABE[0]), "Stahl"))
     out.append(("Registerhebel_Buchse", zyl(4.49, (XM, -1.0, Z_W), (0, 1, 0), RI + 1.0)
                 .cut(zyl(D_WELLE / 2 + 0.05, (XM, -2, Z_W), (0, 1, 0), 10)), "Messing"))
     schnitte.append(("Rahmen_hinten", zyl(4.5, (XM, -3.0, Z_W), (0, 1, 0), RI + 4.0)))

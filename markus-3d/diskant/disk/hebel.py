@@ -1256,6 +1256,12 @@ if FEDERN:
     print(f"Kunststoffteil: {len(RASTKERBEN)} Rastmarken an der hinteren Kante (2 lang, 0,5 tief, 0,8 breit, in Flucht mit den Hebeln)")
 teile.append(("Dreieckleiste", dre, "Griffstock"))
 verst = schneide(verst, loch_b + [cq.Solid.makeCylinder(1.5, 7.0, cq.Vector(x_, y_, T_BODEN - 1.0), cq.Vector(0, 0, 1)) for x_, y_, n_, w_ in GS_LOECHER])
+# 28.11.: Stimmstocksohlen, die in die Leiste ragen (Registerschieber, Reihe 4 geneigt), freischneiden (0,5 mm Luft)
+for _n, _s, _f in teile:
+    if _n.startswith("Stimmstock") and _n.endswith("_Sohle"):
+        _bb = _s.BoundingBox()
+        if _bb.ymin < verst.BoundingBox().ymax and _bb.zmin < T_BODEN + 5.0:
+            verst = verst.cut(cq.Solid.makeBox(_bb.xlen + 1.0, 60.0, 8.0, cq.Vector(_bb.xmin - 0.5, _bb.ymin - 0.5, T_BODEN - 1.0)))
 teile.append(("Verstaerkungsleiste_innen", verst, "Holz"))
 def feder_wendel(Cx, pB, pA, d, n_soll=3.0, spanne=1.9):
     """23.11.: Spiralfeder als echte Wendel (Achse X) statt drei getrennter Ringe.
