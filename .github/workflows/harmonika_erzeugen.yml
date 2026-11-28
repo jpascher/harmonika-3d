@@ -68,6 +68,10 @@ on:
         description: "Diskant Markus: Registerschieber (Doppelschieber je Stimmstock, eckige Oeffnungen, kuerzester Einbau)"
         type: boolean
         default: false
+      klappenteilung:
+        description: "Diskant Markus mit Registerschiebern: Tripelteilung in mm (26.25 = Platten 16 + 1,5 Fuge; 24 = Platten 16 ohne Fuge), leer = 26.25"
+        type: string
+        default: ""
       vorschau:
         description: "Vorschau (GLB + Bild) erzeugen"
         type: boolean
@@ -100,6 +104,7 @@ jobs:
       platten: ${{ steps.p.outputs.platten }}
       belegung: ${{ steps.p.outputs.belegung }}
       schieber: ${{ steps.p.outputs.schieber }}
+      klappenteilung: ${{ steps.p.outputs.klappenteilung }}
       titel: ${{ steps.p.outputs.titel }}
       schon: ${{ steps.s.outputs.schon }}
     steps:
@@ -148,6 +153,7 @@ jobs:
           IN_BELEGUNG: ${{ inputs.belegung }}
           IN_VORSCHAU: ${{ inputs.vorschau }}
           IN_REGISTERSCHIEBER: ${{ inputs.registerschieber }}
+          IN_KLAPPENTEILUNG: ${{ inputs.klappenteilung }}
         run: python3 markus-3d/ci/auswahl.py
       - name: Schon gerechnet?
         id: s
@@ -231,6 +237,7 @@ jobs:
           PLATTEN: ${{ needs.auswahl.outputs.platten }}
           BELEGUNG: ${{ needs.auswahl.outputs.teil == 'bass' && needs.auswahl.outputs.belegung || '' }}
           SCHIEBER: ${{ needs.auswahl.outputs.schieber }}
+          KLAPPENTEILUNG: ${{ needs.auswahl.outputs.klappenteilung }}
         run: xvfb-run -a python3 markus-3d/ci/erzeuge_ci.py "$TEIL" "$VARIANTE" "$TEILUNG" "$LAENGE" ergebnis "$VORSCHAU"
       - name: Protokoll bei Fehler sichern
         if: failure()

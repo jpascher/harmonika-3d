@@ -105,7 +105,10 @@ def main():
         if os.environ.get("SCHIEBER") == "1":                  # 28.11.2026: Registerschieber -> eigener Modellname
             import re as _re
             _t = open(liste, encoding="utf-8").read()
-            _t = _re.sub(r"^(name\s*=\s*)(\S+)", lambda m: m.group(1) + m.group(2) + "_Registerschieber", _t, count=1, flags=_re.M)
+            _kt = os.environ.get("KLAPPENTEILUNG", "").strip()
+            _suf = "_Registerschieber" + (f"_T{_kt.replace('.', ',')}" if _kt else "")
+            _t = _re.sub(r"^(name\s*=\s*)(\S+)", lambda m: m.group(1) + m.group(2) + _suf, _t, count=1, flags=_re.M)
+            if _kt: _t = _re.sub(r"^klappenteilung\s*=.*$", f"klappenteilung = {_kt}", _t, count=1, flags=_re.M)
             liste = os.path.join(aus, "tastenliste_registerschieber.txt"); open(liste, "w", encoding="utf-8").write(_t)
         roh = os.path.join(aus, "diskant_roh")
         lauf([py, "erzeuge.py", liste, roh, "ci"], os.path.join(M3D, "diskant", "disk"), log)

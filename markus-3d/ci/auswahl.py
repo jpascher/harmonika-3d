@@ -11,7 +11,7 @@ LISTEN = {"teil": ["bass", "diskant"], "bass_variante": ["markus", "marie38", "e
           "griffstock": ["standard", "traditionell", "kugellager", "kolben", "kolben12", "winkel", "winkel_ital"],
           "knoepfe": ["50", "44", "46", "48", "52", "54"], "abstand": ["20", "19", "18"]}
 STANDARD = {"teil": "bass", "bass_variante": "markus", "teilung": "standard", "laenge": "", "breite": "", "instrument": "markus",
-            "griffstock": "standard", "knoepfe": "50", "abstand": "", "hebel": "", "platten": "", "belegung": "", "vorschau": "ja", "registerschieber": ""}
+            "griffstock": "standard", "knoepfe": "50", "abstand": "", "hebel": "", "platten": "", "belegung": "", "vorschau": "ja", "registerschieber": "", "klappenteilung": ""}
 # Feldtitel im Issue-Formular (.github/ISSUE_TEMPLATE/modell_anfrage.yml) -> Feld
 TITEL = {"Teil": "teil", "Bass: Bassteil": "bass_variante", "Bass: Knopfteilung": "teilung",
          "Bass: Gehäuselänge (nur Markus-Bass, mm)": "laenge", "Gehäuselänge (mm)": "laenge", "Gehäusebreite (mm)": "breite", "Bass: Belegung (nur v340)": "belegung", "Bass: Belegung (nicht beim Markus-Bass)": "belegung", "Bass: Belegung": "belegung",
@@ -90,6 +90,13 @@ def pruefe(w):
     if a["schieber"]:
         if a["teil"] != "diskant" or a["instrument"] != "markus": raise ValueError("Registerschieber gibt es nur beim Diskant Markus (3-choerig)")
         a["titel"] += ", Registerschieber"
+        if a.get("klappenteilung"):
+            try: kt_ = float(a["klappenteilung"].replace(",", "."))
+            except ValueError: raise ValueError(f"Klappenteilung '{a['klappenteilung']}' ist keine Zahl")
+            if not 20.0 <= kt_ <= 26.25: raise ValueError(f"Klappenteilung {kt_:g} mm ausserhalb 20-26,25 mm")
+            a["klappenteilung"] = f"{kt_:g}"; a["titel"] += f", Klappenteilung {kt_:g}"
+    else:
+        a["klappenteilung"] = ""
     # 28.11.2026: Name im Sammel-Release "modelle", falls genau diese Ausfuehrung dort schon liegt (dann nicht neu rechnen)
     a["sammel"] = ""
     if a["teil"] == "diskant" and not (a["platten"] or a["laenge"] or a["breite"] or a["schieber"]):
@@ -112,7 +119,7 @@ def main():
         grund = " ".join(str(e).split())
         print("Auswahl ungueltig:", grund)
         out.write("ok=nein\n"); out.write(f"grund={grund}\n"); return
-    for k in ("teil", "variante", "teilung", "laenge", "breite", "vorschau", "platten", "belegung", "titel", "sammel", "schieber"):
+    for k in ("teil", "variante", "teilung", "laenge", "breite", "vorschau", "platten", "belegung", "titel", "sammel", "schieber", "klappenteilung"):
         out.write(f"{k}={a[k]}\n")
     out.write("ok=ja\n")
     print("Auswahl:", json.dumps({k: a[k] for k in ("teil", "variante", "teilung", "laenge", "breite", "vorschau", "platten", "belegung")}, ensure_ascii=False))

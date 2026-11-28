@@ -104,7 +104,9 @@ X_STRECK = float(INSTR.get("streck_x", L_GRUND / 2)) if INSTR else L_GRUND / 2  
 boden = box(RI, L - RI, RI, B - RI, 0, T_BODEN)          # Boden liegt innerhalb des Rahmens (zwischen den Rahmenwaenden)
 werk = oeffnungen([(x + BXO, y) for x, y, r in loecher], -1, T_BODEN + 1)
 ZWEI = INSTR is not None and INSTR["choerig"] == 2
-HF = INSTR["knopfabstand"] / 2 if ZWEI else 8.75     # halbe Feldteilung fuer Abstufungsbloecke (Markus 17,5, Marie 19)
+if SCHIEBER and INSTR is not None: LO_B = INSTR.get("loch_breite", LO_B)   # Oeffnungsbreite aus der Tripelteilung
+T3 = INSTR.get("klappenteilung", 26.25) if INSTR is not None else 26.25     # Tripelteilung (Markus 26,25)
+HF = INSTR["knopfabstand"] / 2 if ZWEI else T3 / 3   # halbe Feldteilung fuer Abstufungsbloecke (Markus 17,5, Marie 19)
 _bm2 = ezdxf.readfile(INSTR["boden_dxf"]).modelspace() if INSTR is not None and INSTR.get("boden_dxf") and os.path.exists(INSTR["boden_dxf"]) else None
 if ZWEI and _bm2 is None: print("ACHTUNG: 2-choerig ohne boden_dxf - Klappenumriss/Griffstockfuesse aus boden.dxf")
 _gh = ([(c, INSTR["verschub"]) for c in _bm2.query('CIRCLE') if "griffstock" in c.dxf.layer.lower()] if _bm2 is not None else
@@ -152,11 +154,14 @@ def _klappen_quellen():
             off_ = 8.0 if ins.dxf.name == "*U4" else -8.0 if ins.dxf.name == "*U3" else 0.0
             ziel = (k_["x"] - BXO, k_["y"] + off_)
             d_ = (ziel[0] - ins.dxf.insert.x, ziel[1] - ins.dxf.insert.y)
-            yield [v.translate(d_[0], d_[1], 0) for v in ins.virtual_entities()]
-for _ves in _klappen_quellen():
+            yield [v.translate(d_[0], d_[1], 0) for v in ins.virtual_entities()], k_["x"]
+_KL_F = T3 / 26.25 if (INSTR is not None and not ZWEI) else 1.0      # 3-choerig: Klappen mit der Tripelteilung schmaeler
+for _q in _klappen_quellen():
+    _ves, _kx = _q if isinstance(_q, tuple) else (_q, None)
     for v in _ves:
         if v.dxftype() != "LWPOLYLINE": continue
         pts = [(q.x + BXO, q.y) for q in ezdxf.path.make_path(v).flattening(0.05)]
+        if _kx is not None and abs(_KL_F - 1.0) > 1e-9: pts = [(_kx + (x_ - _kx) * _KL_F, y_) for x_, y_ in pts]
         pts = [q for i_, q in enumerate(pts) if i_ == 0 or math.hypot(q[0]-pts[i_-1][0], q[1]-pts[i_-1][1]) > 1e-4]
         if math.hypot(pts[0][0]-pts[-1][0], pts[0][1]-pts[-1][1]) < 1e-4: pts = pts[:-1]
         if v.dxf.layer == "Klappen-rand-aussen":
@@ -232,7 +237,10 @@ if SCHIEBER and INSTR is not None and INSTR["choerig"] == 3:
     # Lage der Stimmstock-Zeichnungen weiter nach dem urspruenglichen Lochbild (rund, Paar +-6, Reihen +-6) suchen;
     # die eckigen Schieber-Oeffnungen weichen davon bis 1 mm ab und wuerden die Passung verfaelschen
     _L3 = {"unten": [(0, 8), (-6, -4), (6, -4)], "oben": [(0, -8), (-6, 4), (6, 4)]}
-    bl = [(k["x"] + a_, k["y"] + b_) for R_ in INSTR["reihen"].values() for k in R_["klappen"] for a_, b_ in _L3[k["lage"]]]
+    bl = []
+    for R_ in INSTR["reihen"].values():                   # in der Teilung der Zeichnungen (26,25) ab der ersten Klappe
+        _ks = sorted(R_["klappen"], key=lambda k: k["x"])
+        bl += [(_ks[0]["x"] + 26.25 * i_ + a_, k["y"] + b_) for i_, k in enumerate(_ks) for a_, b_ in _L3[k["lage"]]]
 # Stimmstock-Parameter (Plattenlaengen je Tripel und Regeln nach Jakob) aus stimmstock_parameter.txt
 # (Johann 18.11.2026: Plattenlaengen muessen per Variable festlegbar bleiben). Datei per STPARAM=... ueberschreibbar.
 def lies_stparam(pfad):
@@ -251,6 +259,7 @@ def lies_stparam(pfad):
     return out
 STPARAM = os.environ.get("STPARAM", os.path.join(os.path.dirname(os.path.abspath(__file__)), "stimmstock_parameter.txt"))
 SP = lies_stparam(STPARAM)
+if not ZWEI: SP["teilung"] = 2 * T3 / 3      # Kammerteilung je Seite (26,25 -> 17,5; 24 -> 16 = Platten 16 ohne Fuge)
 JAKOB_K = SP["k"]
 print("Stimmstock-Parameter:", STPARAM)
 def jakob_regel(L):

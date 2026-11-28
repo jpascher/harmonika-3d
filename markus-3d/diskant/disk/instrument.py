@@ -41,9 +41,8 @@ LOCH_3 = {"unten": [(0, 8), (-6, -4), (6, -4)],    # *U4
           "oben":  [(0, -8), (-6, 4), (6, 4)]}     # *U3
 LOCH_2 = [(0, 0), (0, 13)]                         # 2chor-klappe
 import os as _os
-if _os.environ.get("SCHIEBER") == "1":             # 28.11.2026 Registerschieber: eckige Oeffnungen 8 x 9,8, Paar +-5, Reihen +-6,5
-    LOCH_3 = {"unten": [(0, 8.5), (-5, -4.5), (5, -4.5)],
-              "oben":  [(0, -8.5), (-5, 4.5), (5, 4.5)]}
+# 28.11.2026 Registerschieber (SCHIEBER=1): eckige Oeffnungen h x 9,8, Paar +-d, Reihen +-6,5; h und d aus der
+# Tripelteilung (registerschieber.lochmass: 26,25 -> 8,0 / +-5; 24 -> 7,1 / +-4,55)
 KLAPPE_HALB = {3: 14.77, 2: 9.0}
 
 
@@ -89,6 +88,13 @@ def lies(pfad):
 def erzeuge(inst):
     ch, T = inst["choerig"], inst["klappenteilung"]
     out = {"name": inst.get("name", ""), "choerig": ch, "reihen": {}, "knopfabstand": float(inst["knopfabstand"])}
+    out["klappenteilung"] = float(T)
+    loch3, kammer3 = LOCH_3, KAMMER_3 * float(T) / 26.25          # Kammerteilung im Tripel = Teilung / 3
+    if _os.environ.get("SCHIEBER") == "1" and ch == 3:
+        import registerschieber as _rs
+        _h, _d = _rs.lochmass(float(T))
+        loch3 = {"unten": [(0, 8.5), (-_d, -4.5), (_d, -4.5)], "oben": [(0, -8.5), (-_d, 4.5), (_d, 4.5)]}
+        out["loch_breite"] = _h
     if "streck_x" in inst: out["streck_x"] = float(inst["streck_x"])
     out["verdeck_muster"] = str(inst.get("verdeck_muster", "keines"))
     for k_ in ("boden_dxf",):
@@ -110,8 +116,8 @@ def erzeuge(inst):
                 lage = "unten" if (i % 2 == 0) == unten else "oben"
                 y = R["klappe_y"] + (-ZICK if lage == "unten" else ZICK)
                 kl.append({"x": x, "y": y, "lage": lage, "L": L})
-                lo += [(x + a, y + b) for a, b in LOCH_3[lage]]
-                for j, d in enumerate((-KAMMER_3, 0.0, KAMMER_3)):
+                lo += [(x + a, y + b) for a, b in loch3[lage]]
+                for j, d in enumerate((-kammer3, 0.0, kammer3)):
                     s = seite if (3 * i + j) % 2 == 0 else ("v" if seite == "h" else "h")
                     ka.append({"x": x + d, "seite": s, "L": L, "klappe": i})
             else:
@@ -126,7 +132,7 @@ def erzeuge(inst):
                             "ton": str(R.get("ton", "R%d" % r)), "neigung": float(R.get("neigung", 0.0)),
                             "knopf_versatz": float(R.get("knopf_versatz", 0.0))}
     # Gehaeuse
-    h = KLAPPE_HALB[ch]
+    h = KLAPPE_HALB[ch] * (float(T) / 26.25 if ch == 3 else 1.0)   # 3-choerig: Klappen mit der Teilung schmaeler
     xmin = min(k["x"] for R in out["reihen"].values() for k in R["klappen"]) - h
     xmax = max(k["x"] for R in out["reihen"].values() for k in R["klappen"]) + h
     # Verdeckstuetzen innen an den Seitenwaenden (Mitte 16,55 vom Rand, Platte 3 mm, Fussplatten bei Y 90,8-101,8 und
