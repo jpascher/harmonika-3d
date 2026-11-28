@@ -478,9 +478,10 @@ for f in dateien:
     else:
         X0, X1 = XW0 + B_LEISTE, XW1 - B_RASTE_O
         x_tw = max(x for x, h in felder_x) + 7.5 + T_TW
-    if SCHIEBER:      # ohne Stimmstockbefestigung: hohe Seite endet gleich nach der letzten Kammer, Platz fuer die Schieberbetaetigung
-        if tief_links: X1 = max(x for x, h in felder_x) + 7.5 + T_TW
-        else: X0 = min(x for x, h in felder_x) - 7.5 - T_TW
+    if SCHIEBER:      # ohne Stimmstockbefestigung: beide Seiten enden gleich nach der letzten Kammer (keine Nase), Platz fuer die
+        # Schieberbetaetigung: die Koppelstangen greifen an beiden Enden von oben in die Rastschlitze (28.11.)
+        X1 = max(x for x, h in felder_x) + 7.5 + T_TW
+        X0 = min(x for x, h in felder_x) - 7.5 - T_TW
     SEITE_TIEF.append(tief_links)
     _kx0, _kx1 = min(x for x, h in felder_x) - 7.5, max(x for x, h in felder_x) + 7.5
     if _kx0 < X0 + 1.0 or _kx1 > X1 - 1.0:
@@ -488,6 +489,7 @@ for f in dateien:
         raise SystemExit(f"ABBRUCH {reihe}: Kammern X {_kx0:.1f}-{_kx1:.1f} passen nicht zwischen {X0:.1f} und {X1:.1f} "
                          f"(Gehaeuse um mind. {_fehl:.1f} mm zu kurz - Gehaeuse strecken oder Klappen verschieben)")
     sole = box(XW0 + B_RASTE_U if tief_links else X0, X1 if tief_links else XW1 - B_RASTE_U, Y0, Y1, zs, zs + T_SOLE)
+    if SCHIEBER: sole = box(X0, X1, Y0, Y1, zs, zs + T_SOLE)
     sole = schneide(sole, oeffnungen([tr(x, y) for x, y in sl], zs - 1, zs + T_SOLE + 1))
     if SCHIEBER:      # Tasche unten in der Sohle fuer die Registerschieber (0,5 + 0,1 Luft), ueber die ganze Laenge
         _ys = sorted({round(tr(x, y)[1], 2) for x, y in sl}); _yl, _yh = _ys[0], _ys[-1]
@@ -653,6 +655,15 @@ if SCHIEBER and INSTR is not None and INSTR["choerig"] == 3:
     import registerschieber as _rs
     for _n, _s in _rs.teile(INSTR, Z_ST, XW0, XW1, box):
         teile.append((_n, _s, "Epoxy"))
+    # Betaetigung mit einem Daumenhebel: Welle durch die Rueckwand (Rahmen_hinten), Kegelrad 1:5, Walze mit zwei
+    # Kurvennuten, Schubstangen und Koppelstangen (registermechanik.py)
+    import registermechanik as _rm
+    _mt, _ms = _rm.teile(INSTR, L, RI, B, box)
+    for _n, _s in _ms:
+        teile = [(n_, s_.cut(_s) if n_ == _n else s_, f_) for n_, s_, f_ in teile]
+        print(f"   Registerhebel: Bohrung in {_n}")
+    teile += [(n_, s_, f_) for n_, s_, f_ in _mt]
+    REGMECH = _rm
 
 # ---------------- Verdeck (aussen, Z < 0) ----------------
 vm = ezdxf.readfile("verdeck.dxf").modelspace()
@@ -943,7 +954,7 @@ if globals().get("KUGEL_FREI") and os.environ.get("VERDECK_FREISCHNEIDEN"):
 # ---- Kollisionspruefung (KOLLISION=1): Teile, die von der Tastenliste abhaengen, gegen alle anderen ----
 if os.environ.get("KOLLISION") == "1":
     import re as _rek, json as _jk
-    _dyn = _rek.compile(os.environ.get("KOLL_MUSTER", r"Stimmstock|Stimmplatte|Klappe|Hebel|Holzteil|Knopf|Achse|Schieber"))
+    _dyn = _rek.compile(os.environ.get("KOLL_MUSTER", r"Stimmstock|Stimmplatte|Klappe|Hebel|Holzteil|Knopf|Achse|Schieber|Register"))
     _bbs = [(n_, s_, s_.BoundingBox()) for n_, s_, f_ in teile]
     _koll = []
     for i_, (na, sa, ba) in enumerate(_bbs):
@@ -954,6 +965,8 @@ if os.environ.get("KOLLISION") == "1":
             try: v_ = sa.intersect(sb).Volume()
             except Exception: v_ = -1.0
             if v_ > 0.5 or v_ < 0: _koll.append((na, nb, round(v_, 1)))
+    if globals().get("REGMECH"):      # Registermechanik: Bewegungswege (alle Rasten und Zwischenlagen) gegen die festen Teile
+        _koll += REGMECH.wege(INSTR, L, teile)
     print(f"Kollisionen (> 0,5 mm3): {len(_koll)}")
     for k_ in _koll: print("   KOLL", k_)
     _jk.dump(_koll, open(OUT + ".kollision.json", "w"), indent=0)
