@@ -114,6 +114,8 @@ jobs:
                 --jq "[.[] | select(.createdAt >= \"$seit\" and .number != $NR and (.body | contains(\"### Teil\")))] | length")
             if [ "$n" -ge 3 ]; then
               weiter=nein
+              gh label create wartet --repo "$GITHUB_REPOSITORY" --color D4A017 --description "Anfrage wartet auf Freigabe" --force >/dev/null
+              gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --add-label wartet
               gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Danke für die Anfrage! Heute sind von dir schon $n Anfragen gerechnet worden – diese wird gerechnet, sobald sie freigegeben ist (Etikett „freigegeben“). Danach kommt das Ergebnis in etwa 15–30 Minuten hier als Antwort."
             fi
           fi
@@ -171,12 +173,20 @@ jobs:
           NR: ${{ github.event.issue.number }}
           LAUF: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          # Zustand als Etikett - die Seite "Anfragen" (docs/anfragen.html) liest es aus
+          for l in "wird-gerechnet:1F6FB2:Anfrage wird gerechnet" "fertig:3F6B3A:Ergebnis liegt vor" "nicht-moeglich:B3361F:Auswahl nicht baubar" "abgebrochen:6E5A4A:Rechnung abgebrochen"; do
+            IFS=: read -r n c d <<< "$l"; gh label create "$n" --repo "$GITHUB_REPOSITORY" --color "$c" --description "$d" --force >/dev/null
+          done
+          gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --remove-label wartet --remove-label nicht-moeglich --remove-label abgebrochen >/dev/null 2>&1 || true
           if [ "$OK" = "ja" ] && [ -n "$SCHON" ]; then
+            gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --add-label fertig
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Genau diese Ausführung (**$TITEL**) ist schon fertig gerechnet: $SCHON – alle Modelle auch auf https://jpascher.github.io/harmonika-3d/"
             gh issue close "$NR" --repo "$GITHUB_REPOSITORY"
           elif [ "$OK" = "ja" ]; then
+            gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --add-label wird-gerechnet
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Angenommen: **$TITEL**. Die Rechnung läuft ([Fortschritt]($LAUF)); das Ergebnis kommt in etwa 15–30 Minuten hier als Antwort."
           else
+            gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --add-label nicht-moeglich
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Diese Auswahl geht leider nicht: $GRUND. Bitte die Anfrage bearbeiten oder neu stellen (Hilfe: https://jpascher.github.io/harmonika-3d/hilfe.html)."
           fi
 
@@ -254,10 +264,13 @@ jobs:
           NR: ${{ github.event.issue.number }}
           LAUF: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --remove-label wird-gerechnet >/dev/null 2>&1 || true
           if [ "$ERGEBNIS" = "success" ]; then
+            gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --add-label fertig
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Fertig! Modell, Vorschau und Protokoll: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG – auch auf der Übersicht https://jpascher.github.io/harmonika-3d/"
             gh issue close "$NR" --repo "$GITHUB_REPOSITORY"
           else
+            gh issue edit "$NR" --repo "$GITHUB_REPOSITORY" --add-label abgebrochen
             gh issue comment "$NR" --repo "$GITHUB_REPOSITORY" --body "Die Rechnung ist leider abgebrochen. Protokoll: $LAUF"
           fi
 

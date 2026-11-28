@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anfragen – Steirische Harmonika 3D</title>
+<style>
+  :root { --holz:#6b4a2b; --holz-hell:#a8794c; --papier:#f7f2ea; --tinte:#2b2118; --linie:#e2d6c4; --gruen:#3f6b3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: Georgia, "Times New Roman", serif; background:var(--papier); color:var(--tinte); }
+  header { background:linear-gradient(135deg,var(--holz),#3e2a17); color:#fff; padding:2.2rem 1.5rem 1.8rem; }
+  header .innen, main { max-width:1100px; margin:0 auto; }
+  h1 { margin:0 0 .4rem; font-size:2rem; font-weight:normal; letter-spacing:.02em; }
+  header p { margin:0; opacity:.85; font-family:system-ui,sans-serif; font-size:.95rem; }
+  header a { color:#fff; }
+  main { padding:1.5rem; font-family:system-ui,sans-serif; }
+  .leiste { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; font-size:.9rem; }
+  .knopf { display:inline-block; background:var(--gruen); color:#fff; text-decoration:none; padding:.55rem 1rem; border-radius:8px; font-weight:600; border:0; cursor:pointer; font-size:.9rem; }
+  .knopf.zweit { background:#fff; color:var(--holz); border:1px solid var(--holz-hell); }
+  .liste { display:flex; flex-direction:column; gap:.7rem; }
+  .eintrag { background:#fff; border:1px solid var(--linie); border-radius:10px; padding:.9rem 1.1rem; display:grid; grid-template-columns:auto 1fr auto; gap:.3rem 1rem; align-items:center; }
+  .nr { font-family:Georgia,serif; color:#8a7a66; font-size:1.1rem; }
+  .was { font-weight:600; }
+  .wer { color:#8a7a66; font-size:.8rem; }
+  .zustand { font-size:.8rem; font-weight:600; padding:.25rem .6rem; border-radius:20px; white-space:nowrap; color:#fff; }
+  .z-fertig { background:#3f6b3a; } .z-rechnet { background:#1f6fb2; } .z-warte { background:#b88a10; }
+  .z-nein { background:#b3361f; } .z-ab { background:#6e5a4a; } .z-neu { background:#8a7a66; }
+  .antwort { grid-column:1 / -1; background:var(--papier); border-radius:8px; padding:.6rem .8rem; font-size:.88rem; line-height:1.45; white-space:pre-wrap; display:none; }
+  .antwort.auf { display:block; }
+  .eintrag button.mehr { background:none; border:0; color:var(--holz); text-decoration:underline; cursor:pointer; font-size:.85rem; padding:0; justify-self:start; }
+  .hinweis { color:#7a6a58; font-size:.85rem; line-height:1.5; }
+  footer { text-align:center; padding:2rem 1rem; color:#8a7a66; font-size:.8rem; }
+  @media (max-width:600px) { .eintrag { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header><div class="innen">
+  <h1>Anfragen</h1>
+  <p>Was gerade gerechnet wird und was fertig ist · <a href="index.html">Fertige Modelle</a> · <a href="konfigurator.html">Modell zusammenstellen</a> · <a href="hilfe.html">Hilfe</a></p>
+</div></header>
+<main>
+  <div class="leiste">
+    <label>Zeigen <select id="f_zustand">
+      <option value="">alle</option><option value="rechnet">wird gerechnet</option><option value="warte">wartet auf Freigabe</option>
+      <option value="fertig">fertig</option><option value="nein">nicht möglich</option><option value="ab">abgebrochen</option></select></label>
+    <label>Name <input id="f_wer" placeholder="GitHub-Name" size="14"></label>
+    <button class="knopf zweit" id="neu_laden">Neu laden</button>
+    <a class="knopf" href="konfigurator.html">Neue Anfrage</a>
+  </div>
+  <p class="hinweis">Die letzten 50 Anfragen, direkt von GitHub gelesen (ohne Anmeldung). Wer angefragt hat, bekommt jede Antwort außerdem von GitHub per E-Mail.
+    „Antwort zeigen“ holt die letzte Nachricht zur Anfrage – bei fertigen Modellen steht dort der Download-Link. Eine fertige Ausführung erscheint auch in der Liste der <a href="index.html">fertigen Modelle</a>.</p>
+  <div class="liste" id="liste"><p class="hinweis">Lade …</p></div>
+</main>
+<footer>Steirische Harmonika 3D · <a href="https://github.com/jpascher/harmonika-3d/issues">alle Anfragen auf GitHub</a></footer>
+<script>
+const REPO = "jpascher/harmonika-3d";
+const ZUSTAND = { "fertig": ["fertig", "z-fertig", "fertig"], "wird-gerechnet": ["rechnet", "z-rechnet", "wird gerechnet"],
+  "wartet": ["warte", "z-warte", "wartet auf Freigabe"], "nicht-moeglich": ["nein", "z-nein", "nicht möglich"], "abgebrochen": ["ab", "z-ab", "abgebrochen"] };
+const FELDER = { "Teil": "teil", "Bass: Bassteil": "bass", "Bass: Knopfteilung": "teilung", "Gehäuselänge (mm)": "laenge", "Bass: Gehäuselänge (nur Markus-Bass, mm)": "laenge",
+  "Gehäusebreite (mm)": "breite", "Bass: Belegung": "belegung", "Bass: Belegung (nicht beim Markus-Bass)": "belegung", "Bass: Belegung (nur v340)": "belegung",
+  "Diskant: Instrument": "instrument", "Diskant: Griffstock": "griffstock", "Diskant: Knopfzahl": "knoepfe", "Diskant: Knopfabstand (mm)": "abstand", "Diskant: Stimmplattenlängen": "platten" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let ALLE = [];
+
+function felder(body) {
+  const w = {}; let f = null;
+  for (const z of (body || "").split(/\r?\n/)) {
+    const m = z.match(/^###\s+(.+?)\s*$/);
+    if (m) { f = FELDER[m[1].trim()] || null; continue; }
+    const t = z.trim();
+    if (f && t && t !== "_No response_" && t !== "None") w[f] = ((w[f] || "") + " " + t).trim();
+  }
+  return w;
+}
+function beschreibung(w) {
+  const l = [w.laenge && `L ${w.laenge}`, w.breite && `B ${w.breite}`].filter(Boolean).join(", ");
+  if ((w.teil || "bass") === "diskant")
+    return `Diskant ${w.instrument || "markus"}, ${w.griffstock || "standard"}, ${w.knoepfe || 50} Knöpfe, Knopfabstand ${w.abstand || "–"} mm`
+      + (w.platten ? ", eigene Stimmplatten" : "") + (l ? `, Gehäuse ${l}` : "");
+  return `Bass ${w.bass || "markus"}, Teilung ${w.teilung || "standard"}` + (w.belegung ? ", eigene Belegung" : "") + (l ? `, Gehäuse ${l}` : "");
+}
+function zustand(i) {
+  for (const l of i.labels.map(x => x.name)) if (ZUSTAND[l]) return ZUSTAND[l];
+  return i.state === "closed" ? ["fertig", "z-fertig", "erledigt"] : ["neu", "z-neu", "eingegangen"];
+}
+function zeigen() {
+  const fz = $("f_zustand").value, fw = $("f_wer").value.trim().toLowerCase();
+  const l = ALLE.filter(i => (!fz || zustand(i)[0] === fz) && (!fw || i.user.login.toLowerCase().includes(fw)));
+  $("liste").innerHTML = l.length ? l.map(i => {
+    const z = zustand(i), d = new Date(i.created_at);
+    return `<div class="eintrag" data-nr="${i.number}">
+      <span class="nr">#${i.number}</span>
+      <span><span class="was">${esc(beschreibung(felder(i.body)))}</span><br>
+        <span class="wer">${esc(i.user.login)} · ${d.toLocaleDateString("de-AT")} ${d.toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" })} ·
+        <a href="${i.html_url}">auf GitHub</a></span></span>
+      <span class="zustand ${z[1]}">${z[2]}</span>
+      <button class="mehr">Antwort zeigen</button>
+      <div class="antwort"></div></div>`;
+  }).join("") : `<p class="hinweis">Keine Anfragen ${fz || fw ? "mit dieser Auswahl" : "bisher"}.</p>`;
+}
+async function antwort(div, nr) {
+  const box = div.querySelector(".antwort");
+  if (box.classList.toggle("auf") && !box.dataset.geladen) {
+    box.textContent = "Lade …";
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/issues/${nr}/comments?per_page=100`);
+      if (!r.ok) throw new Error(r.status === 403 ? "GitHub lässt gerade keine weiteren Abfragen zu – in einer Stunde wieder versuchen" : "Fehler " + r.status);
+      const k = await r.json();
+      const t = k.length ? k[k.length - 1].body : "Noch keine Antwort.";
+      box.innerHTML = esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([^\]]+)\]\((https:[^)\s]+)\)/g, '<a href="$2">$1</a>')
+        .replace(/(^|[\s(])(https:\/\/[^\s)<]+)/g, '$1<a href="$2">$2</a>');
+      box.dataset.geladen = "1";
+    } catch (e) { box.textContent = e.message; }
+  }
+}
+async function laden() {
+  $("liste").innerHTML = '<p class="hinweis">Lade …</p>';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=50&sort=created&direction=desc`);
+    if (!r.ok) throw new Error(r.status === 403 ? "GitHub lässt gerade keine weiteren Abfragen zu (Grenze für Abfragen ohne Anmeldung) – in einer Stunde wieder versuchen." : "Fehler " + r.status);
+    ALLE = (await r.json()).filter(i => !i.pull_request && (i.body || "").includes("### Teil"));
+    zeigen();
+  } catch (e) { $("liste").innerHTML = `<p class="hinweis">${esc(e.message)}</p>`; }
+}
+$("f_zustand").onchange = zeigen; $("f_wer").oninput = zeigen; $("neu_laden").onclick = laden;
+$("liste").addEventListener("click", e => { if (e.target.classList.contains("mehr")) antwort(e.target.closest(".eintrag"), e.target.closest(".eintrag").dataset.nr); });
+const p = new URLSearchParams(location.search); if (p.get("wer")) $("f_wer").value = p.get("wer");
+laden();
+</script>
+</body>
+</html>
