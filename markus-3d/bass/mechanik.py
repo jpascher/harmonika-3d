@@ -412,7 +412,10 @@ for e in MD.query('*[layer=="Klappen-hebel"]'):
     pa = fuss(pa, min(achsen, key=lambda a_: fuss(pa, a_)[1]))[0]
     for n_v, (x0_v, x1_v, y0_v, y1_v) in KL_ALT.items():          # 27.11.: versetzte Klappe - Hebelende mitnehmen
         if x0_v - 1 <= pk[0] <= x1_v + 1 and y0_v - 1 <= pk[1] <= y1_v + 1:
-            pk = (pk[0] + KL_VERSATZ[n_v][0], pk[1] + KL_VERSATZ[n_v][1]); print(f"Klappenhebel zu Klappe_{n_v} versetzt nach", [round(c_, 1) for c_ in pk])
+            pk = (pk[0] + KL_VERSATZ[n_v][0], pk[1] + KL_VERSATZ[n_v][1])
+            _ax = min(achsen, key=lambda a_: fuss(pa, a_)[1])            # Achsende mitnehmen: Hebel bleibt gerade (rechter Winkel)
+            pa = fuss((pa[0] + KL_VERSATZ[n_v][0], pa[1] + KL_VERSATZ[n_v][1]), _ax)[0]
+            print(f"Klappenhebel zu Klappe_{n_v} versetzt: Achse", [round(c_, 1) for c_ in pa], "Klappe", [round(c_, 1) for c_ in pk])
     n_kh += 1
     kh_liste.append((pa, pk)); kh_namen.append(f"Klappenhebel_{n_kh}")
     kh = hebel_pfad(pa, pk)
